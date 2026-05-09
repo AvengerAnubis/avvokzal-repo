@@ -1,0 +1,212 @@
+// Prisma schema for Avtovokzal Information System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============== ENUMS ==============
+
+enum UserRole {
+  USER
+  ADMIN
+  DRIVER
+  OPERATOR
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum TripStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DELAYED
+}
+
+// ============== MODELS ==============
+
+// Пользователи (включая админов, водителей, операторов)
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      UserRole @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bookings      Booking[]
+  favorites     Favorite[]
+  chatMessages  ChatMessage[] @relation("DriverMessages")
+  operatedTrips Trip[]       @relation("OperatorTrips")
+  drivenTrips   Trip[]       @relation("DriverTrips")
+
+  @@map("users")
+}
+
+// Маршруты (автобусные маршруты)
+model Route {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  origin      String   // Начальный пункт
+  destination String   // Конечный пункт
+  distance    Int?     // Расстояние в км
+  duration    Int?     // Длительность в минутах
+  price       Decimal  @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  trips     Trip[]
+  favorites Favorite[]
+
+  @@map("routes")
+}
+
+// Рейсы (конкретные поездки по маршруту)
+model Trip {
+  id          String     @id @default(uuid())
+  routeId     String
+  departureTime DateTime // Время отправления
+  arrivalTime   DateTime // Вре прибытия
+  status      TripStatus @default(SCHEDULED)
+  busNumber   String?    // Номер автобуса
+  driverId    String?    // Водитель
+  operatorId  String?    // Оператор (кто корректирует)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  route      Route         @relation(fields: [routeId], references: [id])
+  driver     User?         @relation("DriverTrips", fields: [driverId], references: [id])
+  operator   User?         @relation("OperatorTrips", fields: [operatorId], references: [id])
+  bookings   Booking[]
+  delays     Delay[]
+  tickets    Ticket[]
+
+  @@map("trips")
+}
+
+// Бронирования
+model Booking {
+  id            String         @id @default(uuid())
+  userId        String
+  tripId        String
+  seats         Int            // Количество мест
+  totalPrice    Decimal        @db.Decimal(10, 2)
+  status        BookingStatus @default(PENDING)
+  passengerName String?
+  passengerPhone String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id])
+  trip     Trip      @relation(fields: [tripId], references: [id])
+  payment  Payment?
+  tickets  Ticket[]
+
+  @@map("bookings")
+}
+
+// Билеты (электронные билеты)
+model Ticket {
+  id          String    @id @default(uuid())
+  bookingId   String
+  tripId      String
+  seatNumber  Int
+  qrCode      String?   @db.Text // QR-код билета
+  isUsed      Boolean   @default(false)
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id])
+  trip    Trip    @relation(fields: [tripId], references: [id])
+
+  @@map("tickets")
+}
+
+// Оплаты
+model Payment {
+  id            String        @id @default(uuid())
+  bookingId     String        @unique
+  amount        Decimal       @db.Decimal(10, 2)
+  status        PaymentStatus @default(PENDING)
+  paymentMethod String?       // Метод оплаты (card, cash, etc.)
+  transactionId String?       // ID транзакции от платёжного провайдера
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+// Избранные маршруты пользователя
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  routeId   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id])
+  route Route @relation(fields: [routeId], references: [id])
+
+  @@unique([userId, routeId])
+  @@map("favorites")
+}
+
+// Задержки рейсов
+model Delay {
+  id          String   @id @default(uuid())
+  tripId      String
+  reason      String?
+  delayMinutes Int     // На сколько минут задержан
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  trip Trip @relation(fields: [tripId], references: [id])
+
+  @@map("delays")
+}
+
+// Чат между водителем и оператором
+model ChatMessage {
+  id         String   @id @default(uuid())
+  driverId   String
+  content    String   @db.Text
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  driver User @relation("DriverMessages", fields: [driverId], references: [id])
+
+  @@map("chat_messages")
+}

@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+@layer tailwind-base, primereact, tailwind-utilities;
+
+/* NEXT.JS ONLY: In "styled" mode you must also add the layer(primereact) */
+@import 'primereact/resources/themes/viva-dark/theme.css' layer(primereact);
+@import 'primereact/resources/primereact.min.css';
+@import 'primeicons/primeicons.css' layer(primereact);
+
+@layer tailwind-base {
+}
+
+@layer tailwind-utilities {
+  @tailwind utilities;
+}
