@@ -7,11 +7,16 @@ import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
+    const sslConfig = process.env.DB_CA_CERT
+      ? {
+        rejectUnauthorized: true, // Включаем строгую проверку по нашему сертификату
+        ca: process.env.DB_CA_CERT, // Передаем текст сертификата
+      }
+      : { rejectUnauthorized: false }; // Локально (если переменной нет), отключаем
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false, // Игнорировать ошибки самоподписанных сертификатов
-      },
+
+      ssl: sslConfig,
     });
     const adapter = new PrismaPg(pool);
     super({ adapter });
