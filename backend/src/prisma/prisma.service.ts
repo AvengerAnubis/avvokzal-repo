@@ -10,7 +10,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const sslConfig = process.env.DB_CA_CERT
       ? {
         rejectUnauthorized: true, // Включаем строгую проверку по нашему сертификату
-        ca: process.env.DB_CA_CERT.replace(/\\n/g, '\n'), // Передаем текст сертификата
+        ca: process.env.DB_CA_CERT.replace(/\+/g, '\n'), // Передаем текст сертификата
       }
       : { rejectUnauthorized: false }; // Локально (если переменной нет), отключаем
     const pool = new Pool({
