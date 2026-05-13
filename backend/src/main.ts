@@ -13,6 +13,8 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   // Global prefix for API routes
