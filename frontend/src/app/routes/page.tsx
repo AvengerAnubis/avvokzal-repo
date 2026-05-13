@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
@@ -19,6 +19,10 @@ export default function RoutesPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [routes, setRoutes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Track whether we've mounted on the client (after initial hydration)
+  const hasMounted = useRef(false);
+  useEffect(() => { hasMounted.current = true; }, []);
 
   // Booking dialog state
   const [showBookingDialog, setShowBookingDialog] = useState(false);
@@ -63,13 +67,27 @@ export default function RoutesPage() {
   };
 
   const handleBookClick = async (route: any) => {
-    if (!isAuthenticated) {
-      router.push('/auth/login?redirect=/routes');
-      return;
+    // Read auth state directly from localStorage to avoid SSR/client hydration mismatch.
+    // We can't rely on authLoading because it starts true on server and becomes false on client,
+    // causing the server-rendered button handlers to redirect before hydration completes.
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token');
+      const userStr = localStorage.getItem('user');
+      if (!token) {
+        router.push('/auth/login?redirect=/routes');
+        return;
+      }
+      try {
+        const storedUser = userStr ? JSON.parse(userStr) : null;
+        // Set passenger info from stored user data
+        setPassengerName(storedUser?.firstName ? `${storedUser.firstName} ${storedUser.lastName}` : '');
+        setPassengerPhone(storedUser?.phone || '');
+      } catch {
+        router.push('/auth/login?redirect=/routes');
+        return;
+      }
     }
     setSelectedRoute(route);
-    setPassengerName(user?.firstName ? `${user.firstName} ${user.lastName}` : '');
-    setPassengerPhone(user?.phone || '');
     setSelectedTrip(null);
     setSeats(1);
     setBookingSuccess(false);

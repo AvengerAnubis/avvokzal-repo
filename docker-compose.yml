@@ -1,0 +1,80 @@
+# =============================================================================
+# Docker Compose — Локальная разработка всего стека
+# Стек: Next.js 16 (frontend) + NestJS (backend) + PostgreSQL 16
+#
+# Для разворота на Vercel:
+#   Фронтенд (./frontend) деплоится на Vercel напрямую (см. vercel.json).
+#   Бэкенд (./backend) запускается через `docker compose -f docker-compose.prod.yml up`.
+# =============================================================================
+
+services:
+  # ========== PostgreSQL ==========
+  postgres:
+    image: postgres:16-alpine
+    container_name: avtovokzal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-12341234}
+      POSTGRES_DB: avtovokzal
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - avtovokzal-network
+
+  # ========== Backend (NestJS + Prisma) ==========
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: avtovokzal-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-12341234}@postgres:5432/avtovokzal?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      NODE_ENV: production
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@avtovokzal.ru}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-123123}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - avtovokzal-network
+
+  # ========== Frontend (Next.js 16) ==========
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: avtovokzal-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+    depends_on:
+      - backend
+    networks:
+      - avtovokzal-network
+
+# ========== Volumes ==========
+volumes:
+  postgres_data:
+    name: avtovokzal-postgres-data
+
+# ========== Networks ==========
+networks:
+  avtovokzal-network:
+    name: avtovokzal-network
+    driver: bridge

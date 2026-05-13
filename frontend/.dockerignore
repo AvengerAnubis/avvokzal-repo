@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env
+.env.local
+.env.*.local
+.DS_Store
+**/node_modules
+coverage
+jest.config.js
+jest.setup.ts
+tsconfig.tsbuildinfo

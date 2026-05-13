@@ -249,22 +249,22 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Последние бронирования */}
-      <Card title="Последние бронирования">
-        <div className="space-y-3">
+      <Card title="Последние бронирования" className="bg-slate-800 text-white">
+        <div className="space-y-2">
           {recentBookings.length === 0 ? (
-            <p className="text-center text-muted-color py-4">Нет бронирований</p>
+            <p className="text-center text-slate-400 py-4">Нет бронирований</p>
           ) : (
             recentBookings.map((booking) => (
-              <div key={booking.id} className="flex justify-between items-center p-3 border-bottom-1 border-200">
+              <div key={booking.id} className="flex justify-between items-center px-4 py-3 bg-slate-700 rounded-lg">
                 <div>
                   <div className="font-bold">{booking.passengerName || 'Без имени'}</div>
-                  <div className="text-sm text-muted-color">
+                  <div className="text-sm text-slate-400">
                     {booking.trip?.route?.origin} → {booking.trip?.route?.destination}
                   </div>
                 </div>
                 <div className="text-right">
                   <Tag severity={getStatusSeverity(booking.status)} value={booking.status === 'CONFIRMED' ? 'Подтверждено' : booking.status === 'PENDING' ? 'Ожидает' : 'Отменено'} />
-                  <div className="text-sm mt-1">{Number(booking.totalPrice)} ₽</div>
+                  <div className="text-sm mt-1 text-slate-300">{Number(booking.totalPrice)} ₽</div>
                 </div>
               </div>
             ))

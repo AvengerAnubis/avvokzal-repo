@@ -223,9 +223,10 @@ export default function AdminUsersPage() {
                   onClick={() => openDialog(row)}
                 />
                 <Button
-                  icon="pi pi-trash"
-                  className="p-button-text p-button-danger p-button-sm"
+                  icon="pi pi-ban"
+                  className="p-button-text p-button-warning p-button-sm"
                   onClick={() => handleDelete(row.id!)}
+                  tooltip="Заблокировать"
                 />
               </div>
             )}

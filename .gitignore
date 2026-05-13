@@ -1,3 +1,9 @@
 .playwright-mcp
 tests/screenshots
 thoughts/ledgers
+
+# Docker
+.env
+*.env.local
+*.env.*.local
+nul

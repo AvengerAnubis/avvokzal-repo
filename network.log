@@ -1,2 +1,0 @@
-[GET] http://localhost:3000/auth/login?_rsc=1v9zk => [200] OK
-[GET] http://localhost:3001/api/auth/validate => [200] OK

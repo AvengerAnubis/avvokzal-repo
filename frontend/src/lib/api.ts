@@ -258,7 +258,7 @@ export const delaysApi = {
 // ============== Chat ==============
 export const chatApi = {
   getMessages: async (driverId: string) => {
-    const response = await api.get(`/chat/${driverId}`);
+    const response = await api.get(`/chat/driver/${driverId}`);
     return response;
   },
 
@@ -273,7 +273,7 @@ export const chatApi = {
   },
 
   getUnreadCount: async (driverId: string) => {
-    const response = await api.get(`/chat/${driverId}/unread`);
+    const response = await api.get(`/chat/driver/${driverId}/unread`);
     return response;
   },
 };

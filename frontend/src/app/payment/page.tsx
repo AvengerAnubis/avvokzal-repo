@@ -17,7 +17,7 @@ const paymentMethods = [
 function PaymentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -28,6 +28,7 @@ function PaymentPageContent() {
   const bookingId = searchParams.get('bookingId');
 
   useEffect(() => {
+    if (isLoading) return; // Wait for auth to initialize
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
@@ -37,7 +38,7 @@ function PaymentPageContent() {
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated, bookingId]);
+  }, [isLoading, isAuthenticated, bookingId]);
 
   const loadBooking = async () => {
     try {
@@ -216,27 +217,27 @@ function PaymentPageContent() {
 
         {/* Выбор способа оплаты */}
         <Card title="Способ оплаты">
-          <div className="space-y-4">
+          <div className="space-y-3">
             {paymentMethods.map((method) => (
               <div
                 key={method.value}
-                className={`p-4 border-round cursor-pointer transition-all ${
+                className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                   selectedMethod === method.value 
-                    ? 'border-2 border-primary bg-primary-50' 
-                    : 'border-1 border-300 hover:border-primary'
+                    ? 'border-blue-600 bg-blue-50 shadow-md' 
+                    : 'border-slate-300 bg-white shadow-sm hover:border-slate-500 hover:bg-slate-50'
                 }`}
                 onClick={() => setSelectedMethod(method.value)}
               >
-                <div className="flex align-items-center gap-3">
-                  <div className={`w-6 h-6 border-round-full border-2 flex align-items-center justify-center ${
-                    selectedMethod === method.value ? 'border-primary bg-primary' : 'border-300'
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    selectedMethod === method.value ? 'border-blue-600 bg-blue-600' : 'border-slate-400 bg-white'
                   }`}>
                     {selectedMethod === method.value && (
-                      <i className="pi pi-check text-white text-xs"></i>
+                      <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                     )}
                   </div>
-                  <i className={`${method.icon} text-xl`}></i>
-                  <span className="font-medium">{method.label}</span>
+                  <i className={`${method.icon} text-lg`} style={{ color: selectedMethod === method.value ? '#2563eb' : '#475569' }}></i>
+                  <span className="font-medium" style={{ color: selectedMethod === method.value ? '#1d4ed8' : '#334155' }}>{method.label}</span>
                 </div>
               </div>
             ))}

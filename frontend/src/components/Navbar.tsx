@@ -147,6 +147,10 @@ function DesktopMenu({
                     <span>Бронирования</span>
                   </Link>
                   <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
+                    <i className="pi pi-cog"></i>
+                    <span>Настройки</span>
+                  </Link>
                   <Link href="/logout" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
                     <i className="pi pi-sign-out"></i>
                     <span>Выйти</span>
@@ -179,6 +183,10 @@ function DesktopMenu({
                     <span>Расписание</span>
                   </Link>
                   <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
+                    <i className="pi pi-cog"></i>
+                    <span>Настройки</span>
+                  </Link>
                   <Link href="/logout" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
                     <i className="pi pi-sign-out"></i>
                     <span>Выйти</span>
@@ -211,6 +219,10 @@ function DesktopMenu({
                     <span>Расписание</span>
                   </Link>
                   <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
+                    <i className="pi pi-cog"></i>
+                    <span>Настройки</span>
+                  </Link>
                   <Link href="/logout" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
                     <i className="pi pi-sign-out"></i>
                     <span>Выйти</span>
@@ -243,6 +255,10 @@ function DesktopMenu({
                     <span>Избранное</span>
                   </Link>
                   <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
+                    <i className="pi pi-cog"></i>
+                    <span>Настройки</span>
+                  </Link>
                   <Link href="/logout" className="block px-4 py-2 hover:bg-slate-700 transition-colors flex items-center gap-2" onClick={closeMenu}>
                     <i className="pi pi-sign-out"></i>
                     <span>Выйти</span>
@@ -315,6 +331,8 @@ function MobileMenu({
                   <Link href="/admin/routes" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Маршруты</Link>
                   <Link href="/admin/users" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Пользователи</Link>
                   <Link href="/admin/bookings" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Бронирования</Link>
+                  <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Настройки</Link>
                   <Link href="/logout" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Выйти</Link>
                 </div>
               )}
@@ -334,6 +352,8 @@ function MobileMenu({
                 <div className="pl-6 flex flex-col gap-1">
                   <Link href="/operator" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Дашборд</Link>
                   <Link href="/schedule" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Расписание</Link>
+                  <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Настройки</Link>
                   <Link href="/logout" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Выйти</Link>
                 </div>
               )}
@@ -353,6 +373,8 @@ function MobileMenu({
                 <div className="pl-6 flex flex-col gap-1">
                   <Link href="/driver" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Дашборд</Link>
                   <Link href="/schedule" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Расписание</Link>
+                  <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Настройки</Link>
                   <Link href="/logout" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Выйти</Link>
                 </div>
               )}
@@ -373,6 +395,8 @@ function MobileMenu({
                 <div className="pl-6 flex flex-col gap-1">
                   <Link href="/profile/tickets" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Мои билеты</Link>
                   <Link href="/profile/favorites" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Избранное</Link>
+                  <div className="border-t border-slate-600 my-1"></div>
+                  <Link href="/profile/settings" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Настройки</Link>
                   <Link href="/logout" className="px-3 py-2 rounded hover:bg-slate-700 transition-colors" onClick={closeMenu}>Выйти</Link>
                 </div>
               )}

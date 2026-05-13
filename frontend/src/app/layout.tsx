@@ -1,8 +1,8 @@
-'use client';
 import { PrimeReactProvider } from 'primereact/api';
 import Navbar from '@/components/Navbar';
 import { AuthProvider } from '@/lib/auth/context';
 import './globals.css';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <PrimeReactProvider>

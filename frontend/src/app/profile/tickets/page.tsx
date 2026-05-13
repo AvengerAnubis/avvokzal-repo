@@ -51,12 +51,21 @@ export default function ProfileTicketsPage() {
           <Column 
             header="Билет"
             body={(row) => (
-              <button 
-                className="p-button p-button-sm p-button-outlined"
-                onClick={() => router.push(`/ticket?id=${row.id}`)}
-              >
-                Скачать
-              </button>
+              row.status === 'PENDING' ? (
+                <button 
+                  className="p-button p-button-sm p-button-success"
+                  onClick={() => router.push(`/payment?bookingId=${row.id}`)}
+                >
+                  Оплатить
+                </button>
+              ) : (
+                <button 
+                  className="p-button p-button-sm p-button-outlined"
+                  onClick={() => router.push(`/ticket?id=${row.id}`)}
+                >
+                  Скачать
+                </button>
+              )
             )}
           />
         </DataTable>

@@ -11,12 +11,13 @@ import api from '@/lib/api';
 
 export default function TicketPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [bookingId, setBookingId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isLoading) return; // Wait for auth to initialize
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
@@ -30,7 +31,7 @@ export default function TicketPage() {
     } else {
       loadLastBooking();
     }
-  }, [isAuthenticated]);
+  }, [isLoading, isAuthenticated]);
 
   const loadBooking = async (id: string) => {
     try {
@@ -121,72 +122,68 @@ export default function TicketPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* QR Код */}
-        <Card className="text-center">
-          <div className="p-6 bg-white border-round">
-            <div className="mb-4">
-              <QRCodeSVG 
-                value={generateQRData()}
-                size={200}
-                level="H"
-                includeMargin
-              />
-            </div>
-            <div className="text-sm text-muted-color">
-              С QR-кодом или без, покажите этот билет при посадке
-            </div>
+        <div className="flex flex-col items-center justify-center p-4 bg-slate-100 rounded-lg">
+          <QRCodeSVG 
+            value={generateQRData()}
+            size={140}
+            level="H"
+            includeMargin
+          />
+          <div className="text-sm mt-3 text-slate-600 text-center">
+            С QR-кодом или без, покажите этот билет при посадке
           </div>
-        </Card>
+        </div>
 
         {/* Детали билета */}
         <Card title="Информация о билете">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center pb-3 border-bottom-1 border-200">
-              <span className="text-muted-color">Статус</span>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center pb-2 border-b border-slate-200">
+              <span className="text-slate-600">Статус</span>
               <Tag severity={getStatusSeverity(booking.status)} value="Подтверждено" />
             </div>
 
-            <div className="p-4 bg-primary-50 border-round">
-              <div className="text-2xl font-bold text-center mb-2">
+            <div className="text-center py-2">
+              <div className="text-xl font-bold text-slate-800">
                 {booking.trip?.route?.origin}
               </div>
-              <div className="text-center text-muted-color mb-2">
+              <div className="text-slate-400 text-lg my-1">
                 <i className="pi pi-arrow-down"></i>
               </div>
-              <div className="text-2xl font-bold text-center">
+              <div className="text-xl font-bold text-slate-800">
                 {booking.trip?.route?.destination}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-muted-color mb-1">Дата и время</div>
+                <div className="text-sm text-slate-500 mb-1">Дата и время</div>
                 <div className="font-medium">
                   {new Date(booking.trip?.departureTime).toLocaleDateString('ru-RU')}
                 </div>
-                <div className="text-muted-color">
+                <div className="text-slate-500">
                   {new Date(booking.trip?.departureTime).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-muted-color mb-1">Автобус</div>
+                <div className="text-sm text-slate-500 mb-1">Автобус</div>
                 <div className="font-medium">{booking.trip?.busNumber || 'Не назначен'}</div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-muted-color mb-1">Пассажир</div>
+                <div className="text-sm text-slate-500 mb-1">Пассажир</div>
                 <div className="font-medium">{booking.passengerName || 'Не указано'}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-color mb-1">Количество мест</div>
+                <div className="text-sm text-slate-500 mb-1">Количество мест</div>
                 <div className="font-medium">{booking.seats}</div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-3 border-top-1 border-200">
-              <span className="font-bold text-lg">Оплачено</span>
-              <span className="font-bold text-2xl text-green-600">{Number(booking.totalPrice)} ₽</span>
+            <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+              <span className="font-bold text-lg text-slate-700">Оплачено</span>
+              <span className="font-bold text-xl text-green-600">{Number(booking.totalPrice)} ₽</span>
             </div>
 
             <div className="pt-3">
@@ -200,26 +197,20 @@ export default function TicketPage() {
       {/* Инструкция */}
       <Card title="Как использовать билет">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4">
-            <div className="w-12 h-12 bg-primary-100 border-circle mx-auto mb-3 flex align-items-center justify-content-center">
-              <i className="pi pi-qrcode text-primary text-xl"></i>
-            </div>
-            <div className="font-bold mb-2">Покажите QR-код</div>
-            <div className="text-sm text-muted-color">Отсканируйте QR-код на турникете при посадке</div>
+          <div className="text-center py-3">
+            <i className="pi pi-qrcode text-blue-600 text-3xl mb-2 block"></i>
+            <div className="font-bold mb-1">Покажите QR-код</div>
+            <div className="text-sm text-slate-500">Отсканируйте QR-код на турникете при посадке</div>
           </div>
-          <div className="text-center p-4">
-            <div className="w-12 h-12 bg-primary-100 border-circle mx-auto mb-3 flex align-items-center justify-content-center">
-              <i className="pi pi-id-card text-primary text-xl"></i>
-            </div>
-            <div className="font-bold mb-2">Или покажите номер</div>
-            <div className="text-sm text-muted-color">Назовите номер бронирования водителю</div>
+          <div className="text-center py-3">
+            <i className="pi pi-id-card text-blue-600 text-3xl mb-2 block"></i>
+            <div className="font-bold mb-1">Или покажите номер</div>
+            <div className="text-sm text-slate-500">Назовите номер бронирования водителю</div>
           </div>
-          <div className="text-center p-4">
-            <div className="w-12 h-12 bg-primary-100 border-circle mx-auto mb-3 flex align-items-center justify-content-center">
-              <i className="pi pi-check-circle text-primary text-xl"></i>
-            </div>
-            <div className="font-bold mb-2">Садитесь в автобус</div>
-            <div className="text-sm text-muted-color">Занимайте указанное количество мест</div>
+          <div className="text-center py-3">
+            <i className="pi pi-check-circle text-blue-600 text-3xl mb-2 block"></i>
+            <div className="font-bold mb-1">Садитесь в автобус</div>
+            <div className="text-sm text-slate-500">Занимайте указанное количество мест</div>
           </div>
         </div>
       </Card>

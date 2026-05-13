@@ -57,14 +57,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Background token validation (runs after mount, doesn't change isLoading)
   useEffect(() => {
     const validateToken = async () => {
-      if (typeof window === 'undefined') {
-        setAuthState(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
+      if (typeof window === 'undefined') return;
       const token = localStorage.getItem('access_token');
       if (!token) {
+        // No token - stay logged out
         setAuthState(prev => ({ ...prev, isLoading: false }));
         return;
       }
@@ -78,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           localStorage.removeItem('access_token');
           localStorage.removeItem('user');
-          setAuthState(prev => ({ ...prev, isLoading: false, isAuthenticated: false, user: null, access_token: null }));
+          setAuthState({ user: null, access_token: null, isLoading: false, isAuthenticated: false });
         }
       } catch {
         setAuthState(prev => ({ ...prev, isLoading: false }));
