@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -23,7 +23,6 @@ export interface AuthResponse {
     email: string;
     firstName: string;
     lastName: string;
-    phone?: string | null;
     role: string;
   };
 }
@@ -36,18 +35,15 @@ export interface TokenPayload {
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
-
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async register(registerDto: RegisterDto): Promise<AuthResponse> {
-    this.logger.log(`register (email: ${registerDto.email})`);
+  async register(data: RegisterDto): Promise<AuthResponse> {
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: registerDto.email },
+      where: { email: data.email },
     });
 
     if (existingUser) {
@@ -55,16 +51,16 @@ export class AuthService {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     // Create user
     const user = await this.prisma.user.create({
       data: {
-        email: registerDto.email,
+        email: data.email,
         password: hashedPassword,
-        firstName: registerDto.firstName,
-        lastName: registerDto.lastName,
-        phone: registerDto.phone || null,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone || null,
         role: 'USER',
       },
     });
@@ -85,14 +81,12 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        phone: user.phone,
         role: user.role,
       },
     };
   }
 
   async login(loginDto: LoginDto): Promise<AuthResponse> {
-    this.logger.log(`login (email: ${loginDto.email})`);
     // Find user
     const user = await this.prisma.user.findUnique({
       where: { email: loginDto.email },
@@ -130,7 +124,6 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        phone: user.phone,
         role: user.role,
       },
     };
@@ -150,13 +143,12 @@ export class AuthService {
       }
 
       return { valid: true, user: payload };
-    } catch {
+    } catch (error) {
       return { valid: false };
     }
   }
 
   async getProfile(userId: string) {
-    this.logger.log(`getProfile (userId: ${userId})`);
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
