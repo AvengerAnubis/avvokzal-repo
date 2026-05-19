@@ -1,0 +1,30 @@
+Метод;Конечная точка;Описание;Защита
+POST;/api/auth/register;Регистрация нового пользователя;Публичный
+POST;/api/auth/login;Аутентификация и получение JWT-токена;Публичный
+GET;/api/auth/validate;Проверка валидности JWT-токена;Публичный
+GET;/api/auth/profile;Получение профиля текущего пользователя;JwtAuthGuard
+GET;/api/routes;Получение списка всех маршрутов;Публичный
+GET;/api/routes/search;Поиск маршрутов по пунктам отправления и назначения;Публичный
+GET;/api/routes/:id;Получение маршрута по идентификатору;Публичный
+POST;/api/routes;Создание нового маршрута;JwtAuthGuard
+PUT;/api/routes/:id;Обновление маршрута;JwtAuthGuard
+DELETE;/api/routes/:id;Удаление маршрута;JwtAuthGuard
+GET;/api/trips;Получение списка всех рейсов;Публичный
+GET;/api/trips/route/:routeId;Получение рейсов по маршруту;Публичный
+GET;/api/trips/:id/seats;Получение количества доступных мест;Публичный
+POST;/api/trips;Создание нового рейса;JwtAuthGuard
+PUT;/api/trips/:id/time;Обновление времени рейса (оператор);JwtAuthGuard
+GET;/api/bookings;Получение списка бронирований;Публичный
+POST;/api/bookings;Создание нового бронирования;JwtAuthGuard
+PUT;/api/bookings/:id/confirm;Подтверждение бронирования;JwtAuthGuard
+PUT;/api/bookings/:id/cancel;Отмена бронирования;JwtAuthGuard
+POST;/api/tickets;Создание билета с генерацией QR-кода;Публичный
+GET;/api/tickets/:id;Получение билета по идентификатору;Публичный
+POST;/api/tickets/:id/validate;Проверка подлинности билета;Публичный
+GET;/api/payments;Получение списка платежей;Публичный
+POST;/api/payments;Создание платежа;JwtAuthGuard
+POST;/api/payments/:id/process;Обработка платежа;JwtAuthGuard
+GET;/api/chat/driver/:driverId;Получение сообщений чата водителя;JwtAuthGuard
+POST;/api/chat;Отправка сообщения в чат;JwtAuthGuard
+GET;/api/delays;Получение списка задержек;Публичный
+POST;/api/delays;Создание записи о задержке;JwtAuthGuard

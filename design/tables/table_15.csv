@@ -1,0 +1,11 @@
+Поле;Тип данных;Атрибуты;Описание
+id;String (UUID);@id @default(uuid());Уникальный идентификатор пользователя, генерируется автоматически
+email;String;@unique;Адрес электронной почты (уникальный, используется для входа)
+password;String;—;Хэш пароля пользователя (bcrypt)
+firstName;String;—;Имя пользователя
+lastName;String;—;Фамилия пользователя
+phone;String?;—;Номер телефона (необязательное поле)
+role;UserRole;@default(USER);Роль пользователя: USER, ADMIN, DRIVER, OPERATOR
+isActive;Boolean;@default(true);Флаг активности учётной записи
+createdAt;DateTime;@default(now());Дата и время создания записи
+updatedAt;DateTime;@updatedAt;Дата и время последнего обновления записи

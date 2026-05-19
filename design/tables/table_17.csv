@@ -1,0 +1,13 @@
+Модуль;Контроллер;Сервис;Основная функциональность
+AuthModule;AuthController;AuthService;Регистрация, аутентификация, валидация JWT-токена, получение профиля
+UsersModule;UsersController;UsersService;CRUD-операции с пользователями, фильтрация по ролям, мягкое удаление
+RoutesModule;RoutesController;RoutesService;Управление маршрутами, поиск по пунктам отправления и назначения
+TripsModule;TripsController;TripsService;Управление рейсами, фильтрация по маршруту и водителю, расчёт доступных мест
+BookingsModule;BookingsController;BookingsService;Создание и управление бронированиями, проверка доступности мест, подтверждение и отмена
+TicketsModule;TicketsController;TicketsService;Генерация электронных билетов с QR-кодами, проверка подлинности, отметка об использовании
+PaymentsModule;PaymentsController;PaymentsService;Обработка платежей, привязка к бронированиям, возврат средств
+FavoritesModule;FavoritesController;FavoritesService;Добавление и удаление маршрутов из избранного, проверка избранного
+ChatModule;ChatController;ChatService;Обмен сообщениями между водителями и операторами, отметка о прочтении
+DelaysModule;DelaysController;DelaysService;Создание записей о задержках, привязка к рейсам, обновление статуса рейса
+PrismaModule;—;PrismaService;Подключение к базе данных PostgreSQL, транзакции, выполнение SQL-запросов
+ConfigModule;—;—;Загрузка переменных окружения, конфигурация приложения
