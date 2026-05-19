@@ -22,6 +22,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     super({ adapter });
   }
 
+
   async onModuleInit() {
     await this.$connect();
     // Seed admin user if not exists
