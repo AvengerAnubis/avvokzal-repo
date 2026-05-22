@@ -1,0 +1,96 @@
+digraph ER {
+  rankdir=LR;
+  splines=ortho;
+  nodesep=0.7;
+  ranksep=1.2;
+  fontname="Arial";
+  
+  node [shape=plaintext fontname="Arial" fontsize=11];
+  edge [fontname="Arial" fontsize=10];
+  users [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>users</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="email">email</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="firstName">firstName</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="lastName">lastName</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="phone">phone</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="role">role</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="isActive">isActive</TD></TR>
+  </TABLE>>];
+
+  routes [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>routes</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="name">name</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="origin">origin</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="destination">destination</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="price">price</TD></TR>
+  </TABLE>>];
+
+  trips [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>trips</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="departureTime">departureTime</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="arrivalTime">arrivalTime</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="status">status</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="busNumber">busNumber</TD></TR>
+  </TABLE>>];
+
+  bookings [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>bookings</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="seats">seats</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="totalPrice">totalPrice</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="status">status</TD></TR>
+  </TABLE>>];
+
+  tickets [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>tickets</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="seatNumber">seatNumber</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="qrCode">qrCode</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="isUsed">isUsed</TD></TR>
+  </TABLE>>];
+
+  payments [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>payments</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="amount">amount</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="status">status</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="paymentMethod">paymentMethod</TD></TR>
+  </TABLE>>];
+
+  favorites [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>favorites</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="userId">userId</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="routeId">routeId</TD></TR>
+  </TABLE>>];
+
+  delays [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>delays</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="reason">reason</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="delayMinutes">delayMinutes</TD></TR>
+  </TABLE>>];
+
+  chat_messages [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4" STYLE="ROUNDED">
+    <TR><TD COLSPAN="2" BGCOLOR="#B8D4E8" PORT="header"><B>chat_messages</B></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="id"><U>id</U></TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="content">content</TD></TR>
+    <TR><TD ALIGN="LEFT" BGCOLOR="#F0F4F8" PORT="isRead">isRead</TD></TR>
+  </TABLE>>];
+
+  trips -> routes [label="route" dir=both];
+  trips -> users [label="driver" dir=both];
+  trips -> users [label="operator" dir=both];
+  bookings -> users [label="user" dir=both];
+  bookings -> trips [label="trip" dir=both];
+  tickets -> bookings [label="booking" dir=both];
+  tickets -> trips [label="trip" dir=both];
+  payments -> bookings [label="booking" dir=both];
+  favorites -> users [label="user" dir=both];
+  favorites -> routes [label="route" dir=both];
+  delays -> trips [label="trip" dir=both];
+  chat_messages -> users [label="driver" dir=both];
+}

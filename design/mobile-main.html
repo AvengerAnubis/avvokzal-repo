@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>АВ-Вокзал</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.hero {
+  position: relative;
+  height: 55vh;
+  min-height: 340px;
+  background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80') center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.3) 100%);
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+.hero h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.hero p {
+  font-size: 14px;
+  opacity: 0.85;
+  font-weight: 400;
+}
+.form-section {
+  flex: 1;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  margin-top: -20px;
+  position: relative;
+  z-index: 2;
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+select {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #111827;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+select:focus {
+  border-color: #2563eb;
+}
+.swap-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 18px;
+}
+.swap-btn:hover {
+  background: #f3f4f6;
+}
+.btn-find {
+  margin-top: auto;
+  width: 100%;
+  padding: 16px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  letter-spacing: 0.3px;
+}
+.btn-find:hover {
+  background: #1d4ed8;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>АВ-Вокзал</h1>
+    <p>Поиск и бронирование билетов на автобус</p>
+  </div>
+</div>
+
+<div class="form-section">
+  <div class="form-group">
+    <label>Откуда</label>
+    <select>
+      <option value="">Выберите город</option>
+      <option>Москва</option>
+      <option>Санкт-Петербург</option>
+      <option>Казань</option>
+      <option>Нижний Новгород</option>
+      <option>Екатеринбург</option>
+      <option>Краснодар</option>
+      <option>Ростов-на-Дону</option>
+    </select>
+  </div>
+
+  <div class="swap-btn">⇅</div>
+
+  <div class="form-group">
+    <label>Куда</label>
+    <select>
+      <option value="">Выберите город</option>
+      <option>Москва</option>
+      <option>Санкт-Петербург</option>
+      <option>Казань</option>
+      <option>Нижний Новгород</option>
+      <option>Екатеринбург</option>
+      <option>Краснодар</option>
+      <option>Ростов-на-Дону</option>
+    </select>
+  </div>
+
+  <button class="btn-find">Найти билеты</button>
+</div>
+
+</body>
+</html>

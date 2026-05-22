@@ -1,0 +1,15 @@
+{
+  "deterministicIds": true,
+  "maxTextSize": 90000,
+  "layout": "elk",
+  "elk": {
+    "direction": "RIGHT"
+  },
+  "er": {
+    "useMaxWidth": true,
+    "minEntityWidth": 160,
+    "minEntityHeight": 60,
+    "entityPadding": 40
+  },
+  "theme": "default"
+}

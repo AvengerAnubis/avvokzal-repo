@@ -148,9 +148,9 @@ export default function DriverPage() {
             ) : (
               <div className="space-y-3">
                 {messages.map((msg) => (
-                  <div key={msg.id} className={`p-3 rounded ${msg.isRead ? 'bg-gray-50' : 'bg-blue-50'}`}>
-                    <div className="text-sm">{msg.content}</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                  <div key={msg.id} className={`p-3 rounded ${msg.isRead ? 'bg-gray-700' : 'bg-blue-800'}`}>
+                    <div className="text-sm text-white">{msg.content}</div>
+                    <div className="text-xs text-gray-400 mt-1">
                       {new Date(msg.createdAt).toLocaleString('ru-RU')}
                     </div>
                   </div>

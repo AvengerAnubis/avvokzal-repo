@@ -1,0 +1,9 @@
+{
+  "deterministicIds": true,
+  "maxTextSize": 90000,
+  "er": {
+    "layoutDirection": "LR",
+    "useMaxWidth": true
+  },
+  "theme": "default"
+}
