@@ -7,3 +7,6 @@ thoughts/ledgers
 *.env.local
 *.env.*.local
 nul
+mobile/AvtovokzalMobileApp/AvtovokzalMobileApp/bin/Debug
+mobile/AvtovokzalMobileApp/AvtovokzalMobileApp/obj
+mobile/AvtovokzalMobileApp/AvtovokzalMobileApp/obj

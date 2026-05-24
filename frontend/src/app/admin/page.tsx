@@ -237,6 +237,13 @@ export default function AdminDashboardPage() {
                 className="w-full justify-start"
               />
             </Link>
+            <Link href="/admin/chats">
+              <Button
+                label="История чатов"
+                icon="pi pi-comments"
+                className="w-full justify-start"
+              />
+            </Link>
             <Link href="/schedule">
               <Button
                 label="Расписание"

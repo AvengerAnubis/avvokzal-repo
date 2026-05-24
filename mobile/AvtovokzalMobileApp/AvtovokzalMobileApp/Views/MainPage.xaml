@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AvtovokzalMobileApp.ViewModels"
+             xmlns:models="clr-namespace:AvtovokzalMobileApp.Models"
+             x:Class="AvtovokzalMobileApp.Views.MainPage"
+             x:DataType="vm:MainViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{StaticResource Slate50}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <!-- Offline Banner -->
+            <Border BackgroundColor="{StaticResource WarningLight}" StrokeShape="RoundRectangle 10" Padding="12"
+                Stroke="{StaticResource Warning}" StrokeThickness="1"
+                IsVisible="{Binding IsServerOnline, Converter={StaticResource InverseBoolConverter}}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="⚠ Сервер недоступен" FontSize="14" FontAttributes="Bold"
+                           TextColor="{StaticResource Slate900}" />
+                    <Label Text="Поиск и бронирование временно недоступны. Вы можете просмотреть сохранённые билеты в профиле."
+                           FontSize="12" TextColor="{StaticResource Slate700}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="{StaticResource Tertiary}" StrokeShape="RoundRectangle 12" Padding="20"
+                Stroke="Transparent" StrokeThickness="0">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="АВ-Вокзал" FontSize="24" FontAttributes="Bold" TextColor="White" />
+                    <Label Text="Поиск и бронирование автобусных билетов"
+                           FontSize="14" TextColor="{StaticResource Slate300}" />
+
+                    <Entry Placeholder="Откуда" Text="{Binding SearchOrigin}"
+                           BackgroundColor="White" PlaceholderColor="{StaticResource Slate400}" />
+
+                    <Entry Placeholder="Куда" Text="{Binding SearchDestination}"
+                           BackgroundColor="White" PlaceholderColor="{StaticResource Slate400}" />
+
+                    <Button Text="Найти маршруты" Command="{Binding SearchRoutesCommand}"
+                            BackgroundColor="{StaticResource Primary}" TextColor="White"
+                            FontAttributes="Bold" HeightRequest="44"
+                            IsEnabled="{Binding IsServerOnline}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Доступные маршруты" FontSize="18" FontAttributes="Bold"
+                   TextColor="{StaticResource Slate900}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" />
+
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}" />
+
+            <CollectionView ItemsSource="{Binding Routes}"
+                            SelectionMode="Single"
+                            SelectionChangedCommand="{Binding SelectRouteCommand}"
+                            SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:RouteModel">
+<Border Margin="0,4" Padding="16"
+        StrokeShape="RoundRectangle 10"
+        BackgroundColor="White"
+        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding Name}"
+                                       FontSize="16" FontAttributes="Bold"
+                                       TextColor="{StaticResource Slate900}" />
+
+                                <Label Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding Price, StringFormat='{0:N0} ₽'}"
+                                       FontSize="16" FontAttributes="Bold"
+                                       TextColor="{StaticResource Primary}" />
+
+                                <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                       FontSize="13" TextColor="{StaticResource Slate500}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="&#x1F4CD; " />
+                                            <Span Text="{Binding Origin}" />
+                                            <Span Text=" → " />
+                                            <Span Text="{Binding Destination}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="16">
+                                    <Label FontSize="12" TextColor="{StaticResource Slate400}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="&#x1F4CF; " />
+                                                <Span Text="{Binding Distance, StringFormat='{0} км'}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label FontSize="12" TextColor="{StaticResource Slate400}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="&#x23F1; " />
+                                                <Span Text="{Binding Duration, StringFormat='{0} мин'}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="8" Padding="40">
+                        <Label Text="Маршруты не найдены" FontSize="16"
+                               TextColor="{StaticResource Slate500}" HorizontalOptions="Center" />
+                        <Label Text="Измените параметры поиска" FontSize="14"
+                               TextColor="{StaticResource Slate400}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

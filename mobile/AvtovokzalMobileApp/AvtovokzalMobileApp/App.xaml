@@ -1,7 +1,7 @@
 ﻿<?xml version = "1.0" encoding = "UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:AvtovokzalMobileApp"
+             xmlns:converters="clr-namespace:AvtovokzalMobileApp.Converters"
              x:Class="AvtovokzalMobileApp.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -9,6 +9,18 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+            <converters:RadioConverter x:Key="RadioConverter" />
+            <converters:StatusToColorConverter x:Key="StatusToColorConverter" />
+            <converters:StatusToTextConverter x:Key="StatusToTextConverter" />
+            <converters:PriceFormatConverter x:Key="PriceFormatConverter" />
+            <converters:DateFormatConverter x:Key="DateFormatConverter" />
+            <converters:TimeFormatConverter x:Key="TimeFormatConverter" />
+            <converters:StepColorConverter x:Key="StepColorConverter" />
+            <converters:StepVisibleConverter x:Key="StepVisibleConverter" />
+            <converters:StepNotZeroConverter x:Key="StepNotZeroConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

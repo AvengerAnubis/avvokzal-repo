@@ -91,7 +91,7 @@ describe('BookingsService', () => {
     const createData = {
       userId: 'u1',
       tripId: 't1',
-      seats: 2,
+      seatNumbers: [1, 2],
       passengerName: 'Test User',
       passengerPhone: '+79000000000',
     };
@@ -105,11 +105,14 @@ describe('BookingsService', () => {
     it('should create a booking with correct total price', async () => {
       mockPrisma.trip.findUnique.mockResolvedValue({
         id: 't1',
+        totalSeats: 40,
         route: { price: 1500 },
+        bookings: [],
       });
       const createdBooking = {
         id: 'b1',
         ...createData,
+        seats: 2,
         totalPrice: 3000,
         status: BookingStatus.PENDING,
       };
@@ -122,12 +125,19 @@ describe('BookingsService', () => {
           userId: 'u1',
           tripId: 't1',
           seats: 2,
+          seatNumbers: [1, 2],
           totalPrice: 3000,
           passengerName: 'Test User',
           passengerPhone: '+79000000000',
           status: BookingStatus.PENDING,
+          tickets: {
+            create: [
+              { tripId: 't1', seatNumber: 1, qrCode: expect.any(String) },
+              { tripId: 't1', seatNumber: 2, qrCode: expect.any(String) },
+            ],
+          },
         },
-        include: { trip: { include: { route: true } } },
+        include: { trip: { include: { route: true } }, tickets: true },
       });
       expect(result).toEqual(createdBooking);
     });

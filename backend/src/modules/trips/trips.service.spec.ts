@@ -92,7 +92,11 @@ describe('TripsService', () => {
       const result = await service.create(createData);
 
       expect(mockPrisma.trip.create).toHaveBeenCalledWith({
-        data: createData,
+        data: {
+          ...createData,
+          driverId: undefined,
+          totalSeats: 40,
+        },
         include: { route: true },
       });
       expect(result).toEqual(createdTrip);
@@ -200,35 +204,43 @@ describe('TripsService', () => {
 
       const result = await service.getAvailableSeats('nonexistent');
 
-      expect(result).toEqual({ totalSeats: 40, bookedSeats: 0, availableSeats: 40 });
+      expect(result).toEqual({ totalSeats: 40, bookedSeats: 0, availableSeats: 40, seatMap: [] });
     });
 
     it('should calculate available seats correctly', async () => {
       mockPrisma.trip.findUnique.mockResolvedValue({
         id: '1',
+        totalSeats: 40,
         bookings: [
-          { id: 'b1', seats: 2 },
-          { id: 'b2', seats: 3 },
+          { id: 'b1', seatNumbers: [1, 2] },
+          { id: 'b2', seatNumbers: [3, 4, 5] },
         ],
       });
 
       const result = await service.getAvailableSeats('1');
 
-      expect(result).toEqual({ totalSeats: 40, bookedSeats: 5, availableSeats: 35 });
+      expect(result).toEqual({
+        totalSeats: 40,
+        bookedSeats: 5,
+        availableSeats: 35,
+        seatMap: expect.any(Array),
+      });
+      expect(result.seatMap).toHaveLength(40);
     });
 
     it('should not return negative available seats', async () => {
       mockPrisma.trip.findUnique.mockResolvedValue({
         id: '1',
+        totalSeats: 40,
         bookings: [
-          { id: 'b1', seats: 25 },
-          { id: 'b2', seats: 20 },
+          { id: 'b1', seatNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] },
+          { id: 'b2', seatNumbers: [26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40] },
         ],
       });
 
       const result = await service.getAvailableSeats('1');
 
-      expect(result).toEqual({ totalSeats: 40, bookedSeats: 45, availableSeats: 0 });
+      expect(result).toEqual({ totalSeats: 40, bookedSeats: 40, availableSeats: 0, seatMap: expect.any(Array) });
     });
   });
 });

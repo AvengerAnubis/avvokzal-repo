@@ -43,6 +43,7 @@ export class TripsController {
     arrivalTime: Date;
     busNumber?: string;
     driverId?: string;
+    totalSeats?: number;
   }) {
     return this.tripsService.create(body);
   }

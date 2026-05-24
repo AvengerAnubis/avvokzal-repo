@@ -132,7 +132,7 @@ export const bookingsApi = {
     return response;
   },
 
-  create: async (data: { userId: string; tripId: string; seats: number; passengerName?: string; passengerPhone?: string }) => {
+  create: async (data: { userId: string; tripId: string; seatNumbers: number[]; passengerName?: string; passengerPhone?: string; passengerEmail?: string }) => {
     const response = await api.post('/bookings', data);
     return response;
   },
@@ -257,23 +257,58 @@ export const delaysApi = {
 
 // ============== Chat ==============
 export const chatApi = {
-  getMessages: async (driverId: string) => {
-    const response = await api.get(`/chat/driver/${driverId}`);
+  create: async (driverId: string, text: string) => {
+    const response = await api.post('/chat', { driverId, text });
     return response;
   },
 
-  sendMessage: async (driverId: string, content: string) => {
-    const response = await api.post('/chat', { driverId, content });
+  heartbeat: async (chatId: string) => {
+    const response = await api.post(`/chat/${chatId}/heartbeat`);
     return response;
   },
 
-  markAsRead: async (messageId: string) => {
-    const response = await api.put(`/chat/${messageId}/read`);
+  getAvailable: async () => {
+    const response = await api.get('/chat/available');
     return response;
   },
 
-  getUnreadCount: async (driverId: string) => {
-    const response = await api.get(`/chat/driver/${driverId}/unread`);
+  assign: async (chatId: string, operatorId: string) => {
+    const response = await api.post(`/chat/${chatId}/assign`, { operatorId });
+    return response;
+  },
+
+  sendMessage: async (chatId: string, senderId: string, senderRole: 'DRIVER' | 'OPERATOR' | 'ADMIN', text: string) => {
+    const response = await api.post(`/chat/${chatId}/message`, { senderId, senderRole, text });
+    return response;
+  },
+
+  getMessages: async (chatId: string) => {
+    const response = await api.get(`/chat/${chatId}/messages`);
+    return response;
+  },
+
+  close: async (chatId: string, userId: string) => {
+    const response = await api.post(`/chat/${chatId}/close`, { userId });
+    return response;
+  },
+
+  getHistory: async (userId: string, role: string) => {
+    const response = await api.get('/chat/history', { params: { userId, role } });
+    return response;
+  },
+
+  getById: async (chatId: string, userId: string, role: string) => {
+    const response = await api.get(`/chat/${chatId}`, { params: { userId, role } });
+    return response;
+  },
+
+  getActiveByOperator: async (operatorId: string) => {
+    const response = await api.get('/chat/active/operator', { params: { operatorId } });
+    return response;
+  },
+
+  getDriverActiveChat: async (driverId: string) => {
+    const response = await api.get('/chat/active/driver', { params: { driverId } });
     return response;
   },
 };

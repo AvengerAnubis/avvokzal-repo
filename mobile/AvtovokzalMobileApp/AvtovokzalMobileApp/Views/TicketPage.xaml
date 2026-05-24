@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AvtovokzalMobileApp.ViewModels"
+             x:Class="AvtovokzalMobileApp.Views.TicketPage"
+             x:DataType="vm:TicketViewModel"
+             Title="Электронный билет"
+             BackgroundColor="{StaticResource Slate50}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" />
+
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}" />
+
+            <!-- QR Code -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                Stroke="{StaticResource Slate200}" StrokeThickness="1"
+                HorizontalOptions="Center">
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label Text="QR-код билета" FontSize="16" FontAttributes="Bold"
+                           TextColor="{StaticResource Slate900}" HorizontalOptions="Center" />
+
+                    <Border WidthRequest="220" HeightRequest="220" Padding="0"
+                            Stroke="{StaticResource Slate200}" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            HorizontalOptions="Center">
+                        <Image Source="{Binding QrCodeImage}" WidthRequest="200" HeightRequest="200"
+                               Aspect="AspectFit" />
+                    </Border>
+
+                    <Label Text="Покажите этот код при посадке" FontSize="12"
+                           TextColor="{StaticResource Slate500}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Ticket Details -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Детали билета" FontSize="18" FontAttributes="Bold"
+                           TextColor="{StaticResource Slate900}" />
+
+                    <Label Text="{Binding Booking.Trip.Route.Name}"
+                           FontSize="16" FontAttributes="Bold"
+                           TextColor="{StaticResource Slate900}" />
+
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                          ColumnSpacing="12" RowSpacing="8">
+
+                        <Label Text="Откуда:" TextColor="{StaticResource Slate500}" FontSize="14" />
+                        <Label Grid.Column="1" Text="{Binding Booking.Trip.Route.Origin}"
+                               TextColor="{StaticResource Slate900}" FontSize="14" FontAttributes="Bold" />
+
+                        <Label Grid.Row="1" Text="Куда:" TextColor="{StaticResource Slate500}" FontSize="14" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Booking.Trip.Route.Destination}"
+                               TextColor="{StaticResource Slate900}" FontSize="14" FontAttributes="Bold" />
+
+                        <Label Grid.Row="2" Text="Отправление:" TextColor="{StaticResource Slate500}" FontSize="14" />
+                        <Label Grid.Row="2" Grid.Column="1"
+                               Text="{Binding Booking.Trip.DepartureTime, StringFormat='{0:dd.MM.yyyy HH:mm}'}"
+                               TextColor="{StaticResource Slate900}" FontSize="14" FontAttributes="Bold" />
+
+                        <Label Grid.Row="3" Text="Автобус:" TextColor="{StaticResource Slate500}" FontSize="14" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding Booking.Trip.BusNumber}"
+                               TextColor="{StaticResource Slate900}" FontSize="14" FontAttributes="Bold" />
+
+                        <Label Grid.Row="4" Text="Пассажир:" TextColor="{StaticResource Slate500}" FontSize="14" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding Booking.PassengerName}"
+                               TextColor="{StaticResource Slate900}" FontSize="14" FontAttributes="Bold" />
+
+                        <Label Grid.Row="5" Text="Места:" TextColor="{StaticResource Slate500}" FontSize="14" />
+                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding Booking.Seats}"
+                               TextColor="{StaticResource Slate900}" FontSize="14" FontAttributes="Bold" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource Slate200}" />
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Оплачено:" FontSize="16" FontAttributes="Bold"
+                               TextColor="{StaticResource Slate900}" />
+                        <Label Grid.Column="1" Text="{Binding Booking.TotalPrice, StringFormat='{0:N0} ₽'}"
+                               FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Success}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Instructions -->
+            <Border BackgroundColor="{StaticResource Primary}" StrokeShape="RoundRectangle 12" Padding="16"
+                Stroke="Transparent" StrokeThickness="0">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Как использовать билет" FontSize="16" FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="1. Покажите QR-код водителю при посадке&#10;2. Назовите номер бронирования&#10;3. Займите указанные места"
+                           FontSize="13" TextColor="#DBEAFE" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Назад" Command="{Binding GoBackCommand}"
+                    BackgroundColor="{StaticResource Slate200}" TextColor="{StaticResource Slate700}"
+                    HeightRequest="44" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

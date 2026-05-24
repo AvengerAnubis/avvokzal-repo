@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AvtovokzalMobileApp.ViewModels"
+             xmlns:models="clr-namespace:AvtovokzalMobileApp.Models"
+             x:Class="AvtovokzalMobileApp.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Личный кабинет"
+             BackgroundColor="{StaticResource Slate50}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <!-- Offline Banner -->
+            <Border BackgroundColor="{StaticResource WarningLight}" StrokeShape="RoundRectangle 10" Padding="12"
+                Stroke="{StaticResource Warning}" StrokeThickness="1"
+                IsVisible="{Binding ConnectionWarning, Converter={StaticResource IsNotNullConverter}}">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="⚠" FontSize="16" VerticalOptions="Center" />
+                    <Label Text="{Binding ConnectionWarning}" FontSize="13"
+                           TextColor="{StaticResource Slate700}" VerticalOptions="Center"
+                           LineBreakMode="WordWrap" HorizontalOptions="FillAndExpand" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Not Authenticated -->
+            <VerticalStackLayout Spacing="16" VerticalOptions="Center" Padding="40"
+                                 IsVisible="{Binding IsAuthenticated, Converter={StaticResource InverseBoolConverter}}">
+                <Label Text="Войдите в аккаунт" FontSize="20" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" HorizontalOptions="Center" />
+                <Label Text="Чтобы просматривать бронирования и избранное"
+                       FontSize="14" TextColor="{StaticResource Slate500}"
+                       HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                <Button Text="Войти" Command="{Binding GoToLoginCommand}"
+                        BackgroundColor="{StaticResource Primary}" TextColor="White"
+                        FontAttributes="Bold" HeightRequest="48" />
+            </VerticalStackLayout>
+
+            <!-- Authenticated Content -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding IsAuthenticated}">
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Primary}" />
+
+                <!-- User Info -->
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding User.FirstName}"
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="{StaticResource Slate900}" />
+                        <Label Text="{Binding User.Email}" FontSize="14"
+                               TextColor="{StaticResource Slate500}" />
+                        <Label Text="{Binding User.Role}" FontSize="12"
+                               TextColor="{StaticResource Primary}" />
+
+                        <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
+                            <Button Text="Редактировать" Command="{Binding SaveProfileCommand}"
+                                    BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                                    BorderColor="{StaticResource Primary}" BorderWidth="1"
+                                    FontSize="13" HeightRequest="36" Padding="12,4" />
+                            <Button Text="Выйти" Command="{Binding LogoutCommand}"
+                                    BackgroundColor="{StaticResource Error}" TextColor="White"
+                                    FontSize="13" HeightRequest="36" Padding="12,4" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Edit Profile -->
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                Stroke="{StaticResource Slate200}" StrokeThickness="1"
+                IsVisible="{Binding IsEditingProfile}">
+                    <VerticalStackLayout Spacing="8">
+                        <Entry Placeholder="Имя" Text="{Binding FirstName}"
+                               BackgroundColor="{StaticResource Slate50}" />
+                        <Entry Placeholder="Фамилия" Text="{Binding LastName}"
+                               BackgroundColor="{StaticResource Slate50}" />
+                        <Entry Placeholder="Телефон" Text="{Binding Phone}"
+                               BackgroundColor="{StaticResource Slate50}" Keyboard="Telephone" />
+                        <Button Text="Сохранить" Command="{Binding SaveProfileCommand}"
+                                BackgroundColor="{StaticResource Primary}" TextColor="White" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Bookings -->
+                <Label Text="Мои бронирования" FontSize="18" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" />
+
+                <CollectionView ItemsSource="{Binding Bookings}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BookingModel">
+                            <Border Margin="0,4" Padding="16"
+        StrokeShape="RoundRectangle 10"
+        BackgroundColor="White"
+        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=ViewBookingCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Trip.Route.Name}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           TextColor="{StaticResource Slate900}" />
+
+<Border Grid.Row="0" Grid.Column="1" Padding="6,2"
+        StrokeShape="RoundRectangle 4" StrokeThickness="0"
+        Stroke="Transparent"
+        BackgroundColor="{Binding Status, Converter={StaticResource StatusToColorConverter}}">
+                                        <Label Text="{Binding Status, Converter={StaticResource StatusToTextConverter}}"
+                                               FontSize="11" TextColor="White" />
+                                    </Border>
+
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           FontSize="13" TextColor="{StaticResource Slate500}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Trip.DepartureTime, StringFormat='{0:dd.MM.yyyy HH:mm}'}" />
+                                                <Span Text=" · " />
+                                                <Span Text="{Binding Trip.Route.Origin}" />
+                                                <Span Text=" → " />
+                                                <Span Text="{Binding Trip.Route.Destination}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <Label Grid.Row="2" Grid.Column="0"
+                                           Text="{Binding TotalPrice, StringFormat='{0:N0} ₽'}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="{StaticResource Primary}" />
+
+                                    <Label Grid.Row="2" Grid.Column="1"
+                                           Text="{Binding Seats, StringFormat='{0} мест'}"
+                                           FontSize="13" TextColor="{StaticResource Slate500}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="У вас пока нет бронирований" FontSize="14"
+                               TextColor="{StaticResource Slate400}" HorizontalOptions="Center"
+                               Padding="20" />
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <!-- Cached Tickets (offline) -->
+                <Label Text="Сохранённые билеты" FontSize="18" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" Margin="0,8,0,0"
+                       IsVisible="{Binding IsServerOnline, Converter={StaticResource InverseBoolConverter}}" />
+
+                <CollectionView ItemsSource="{Binding CachedTickets}"
+                                IsVisible="{Binding IsServerOnline, Converter={StaticResource InverseBoolConverter}}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:TicketModel">
+                            <Border Margin="0,4" Padding="16"
+        StrokeShape="RoundRectangle 10"
+        BackgroundColor="White"
+        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=ViewCachedTicketCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Booking.Trip.Route.Name}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           TextColor="{StaticResource Slate900}" />
+
+                                    <Label Grid.Row="0" Grid.Column="1"
+                                           Text="💾" FontSize="16"
+                                           VerticalOptions="Center" />
+
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           FontSize="13" TextColor="{StaticResource Slate500}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Booking.Trip.DepartureTime, StringFormat='{0:dd.MM.yyyy HH:mm}'}" />
+                                                <Span Text=" · " />
+                                                <Span Text="{Binding Booking.Trip.Route.Origin}" />
+                                                <Span Text=" → " />
+                                                <Span Text="{Binding Booking.Trip.Route.Destination}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <Label Grid.Row="2" Grid.Column="0"
+                                           Text="{Binding Booking.TotalPrice, StringFormat='{0:N0} ₽'}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="{StaticResource Primary}" />
+
+                                    <Label Grid.Row="2" Grid.Column="1"
+                                           Text="{Binding SeatNumber, StringFormat='Место {0}'}"
+                                           FontSize="13" TextColor="{StaticResource Slate500}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="Нет сохранённых билетов" FontSize="14"
+                               TextColor="{StaticResource Slate400}" HorizontalOptions="Center"
+                               Padding="20" />
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+                <!-- Favorites -->
+                <Label Text="Избранные маршруты" FontSize="18" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" Margin="0,8,0,0" />
+
+                <CollectionView ItemsSource="{Binding Favorites}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:FavoriteModel">
+                            <Border Margin="0,4" Padding="16"
+        StrokeShape="RoundRectangle 10"
+        BackgroundColor="White"
+        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="4">
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Route.Name}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           TextColor="{StaticResource Slate900}" />
+
+                                    <Button Grid.Row="0" Grid.Column="1"
+                                            Text="✕" FontSize="14"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Error}"
+                                            WidthRequest="36" HeightRequest="36" Padding="0"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=RemoveFavoriteCommand}"
+                                            CommandParameter="{Binding .}" />
+
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                           FontSize="13" TextColor="{StaticResource Slate500}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Route.Origin}" />
+                                                <Span Text=" → " />
+                                                <Span Text="{Binding Route.Destination}" />
+                                                <Span Text=" · " />
+                                                <Span Text="{Binding Route.Price, StringFormat='{0:N0} ₽'}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="Нет избранных маршрутов" FontSize="14"
+                               TextColor="{StaticResource Slate400}" HorizontalOptions="Center"
+                               Padding="20" />
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

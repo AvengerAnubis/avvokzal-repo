@@ -3,12 +3,25 @@
     x:Class="AvtovokzalMobileApp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:AvtovokzalMobileApp"
-    Title="AvtovokzalMobileApp">
+    xmlns:views="clr-namespace:AvtovokzalMobileApp.Views"
+    Shell.BackgroundColor="{StaticResource Tertiary}"
+    Shell.ForegroundColor="White"
+    Shell.TitleColor="White"
+    Shell.TabBarBackgroundColor="{StaticResource White}"
+    Shell.TabBarForegroundColor="{StaticResource Primary}"
+    Shell.TabBarTitleColor="{StaticResource Primary}"
+    Shell.TabBarUnselectedColor="{StaticResource Slate400}">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent
+            Title="Главная"
+            ContentTemplate="{DataTemplate views:MainPage}"
+            Route="main" />
+
+        <ShellContent
+            Title="Профиль"
+            ContentTemplate="{DataTemplate views:ProfilePage}"
+            Route="profile" />
+    </TabBar>
 
 </Shell>

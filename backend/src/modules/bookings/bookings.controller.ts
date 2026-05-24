@@ -24,9 +24,10 @@ export class BookingsController {
   async create(@Body() body: {
     userId: string;
     tripId: string;
-    seats: number;
+    seatNumbers: number[];
     passengerName?: string;
     passengerPhone?: string;
+    passengerEmail?: string;
   }) {
     return this.bookingsService.create(body);
   }
@@ -36,9 +37,11 @@ export class BookingsController {
     @Param('id') id: string,
     @Body() body: Partial<{
       seats: number;
+      seatNumbers: number[];
       status: any;
       passengerName: string;
       passengerPhone: string;
+      passengerEmail: string;
     }>,
   ) {
     return this.bookingsService.update(id, body);

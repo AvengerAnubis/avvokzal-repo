@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AvtovokzalMobileApp.ViewModels"
+             xmlns:models="clr-namespace:AvtovokzalMobileApp.Models"
+             x:Class="AvtovokzalMobileApp.Views.BookingPage"
+             x:DataType="vm:BookingViewModel"
+             Title="{Binding StepHeader}"
+             BackgroundColor="{StaticResource Slate50}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource Primary}" />
+
+            <Label Text="{Binding ErrorMessage}" TextColor="{StaticResource Error}"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsNotNullConverter}}"
+                   BackgroundColor="{StaticResource ErrorLight}" Padding="12,8" />
+
+            <!-- Step Indicators -->
+            <Grid ColumnDefinitions="*,*,*,*" Padding="0,8" IsVisible="{Binding IsBookingComplete, Converter={StaticResource InverseBoolConverter}}">
+                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="4">
+                    <Border WidthRequest="32" HeightRequest="32"
+                            StrokeShape="RoundRectangle 16" Padding="0"
+                            HorizontalOptions="Center"
+                            BackgroundColor="{Binding CurrentStep, Converter={StaticResource StepColorConverter}, ConverterParameter=0}"
+                            Stroke="Transparent" StrokeThickness="0">
+                        <Label Text="1" TextColor="White" FontSize="14" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Рейс" FontSize="10" TextColor="{StaticResource Slate500}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="4">
+                    <Border WidthRequest="32" HeightRequest="32"
+                            StrokeShape="RoundRectangle 16" Padding="0"
+                            HorizontalOptions="Center"
+                            BackgroundColor="{Binding CurrentStep, Converter={StaticResource StepColorConverter}, ConverterParameter=1}"
+                            Stroke="Transparent" StrokeThickness="0">
+                        <Label Text="2" TextColor="White" FontSize="14" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Места" FontSize="10" TextColor="{StaticResource Slate500}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="4">
+                    <Border WidthRequest="32" HeightRequest="32"
+                            StrokeShape="RoundRectangle 16" Padding="0"
+                            HorizontalOptions="Center"
+                            BackgroundColor="{Binding CurrentStep, Converter={StaticResource StepColorConverter}, ConverterParameter=2}"
+                            Stroke="Transparent" StrokeThickness="0">
+                        <Label Text="3" TextColor="White" FontSize="14" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Выбор" FontSize="10" TextColor="{StaticResource Slate500}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center" Spacing="4">
+                    <Border WidthRequest="32" HeightRequest="32"
+                            StrokeShape="RoundRectangle 16" Padding="0"
+                            HorizontalOptions="Center"
+                            BackgroundColor="{Binding CurrentStep, Converter={StaticResource StepColorConverter}, ConverterParameter=3}"
+                            Stroke="Transparent" StrokeThickness="0">
+                        <Label Text="4" TextColor="White" FontSize="14" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Данные" FontSize="10" TextColor="{StaticResource Slate500}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- STEP 0: Route & Trip Selection -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding CurrentStep, Converter={StaticResource StepVisibleConverter}, ConverterParameter=0}">
+
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding SelectedRoute.Name}" FontSize="20" FontAttributes="Bold"
+                               TextColor="{StaticResource Slate900}" />
+
+                        <Label FontSize="14" TextColor="{StaticResource Slate600}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding SelectedRoute.Origin}" FontAttributes="Bold" />
+                                    <Span Text=" → " />
+                                    <Span Text="{Binding SelectedRoute.Destination}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+
+                        <HorizontalStackLayout Spacing="16">
+                            <Label Text="{Binding SelectedRoute.Duration, StringFormat='В пути: {0} мин'}"
+                                   FontSize="13" TextColor="{StaticResource Slate500}" />
+                            <Label Text="{Binding SelectedRoute.Distance, StringFormat='{0} км'}"
+                                   FontSize="13" TextColor="{StaticResource Slate500}" />
+                        </HorizontalStackLayout>
+
+                        <Label Text="{Binding SelectedRoute.Price, StringFormat='{0:N0} ₽'}"
+                               FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Выберите рейс" FontSize="16" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" />
+
+                <Picker Title="Выберите время отправления"
+                        ItemsSource="{Binding Trips}"
+                        SelectedItem="{Binding SelectedTrip}"
+                        ItemDisplayBinding="{Binding DepartureTime, StringFormat='{0:dd.MM HH:mm}'}"
+                        BackgroundColor="White" />
+
+            </VerticalStackLayout>
+
+            <!-- STEP 1: Seat Count -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding CurrentStep, Converter={StaticResource StepVisibleConverter}, ConverterParameter=1}">
+
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                    <VerticalStackLayout Spacing="8">
+                        <Label FontSize="16" TextColor="{StaticResource Slate600}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding SelectedRoute.Origin}" FontAttributes="Bold" />
+                                    <Span Text=" → " />
+                                    <Span Text="{Binding SelectedRoute.Destination}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label Text="{Binding SelectedTrip.DepartureTime, StringFormat='{0:dd.MM.yyyy HH:mm}'}"
+                               FontSize="13" TextColor="{StaticResource Slate500}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Количество мест" FontSize="16" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" />
+
+                <HorizontalStackLayout Spacing="12" VerticalOptions="Center">
+                    <Stepper Value="{Binding SeatCount}" Minimum="1" Maximum="10"
+                             Increment="1" />
+                    <Label Text="{Binding SeatCount, StringFormat='{0} шт'}"
+                           FontSize="18" VerticalOptions="Center"
+                           TextColor="{StaticResource Slate900}" />
+                </HorizontalStackLayout>
+
+                <Label TextColor="{StaticResource Slate500}" FontSize="13">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Доступно мест: " />
+                            <Span Text="{Binding AvailableSeats}" FontAttributes="Bold" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
+                <Border BackgroundColor="{StaticResource Slate100}" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="Transparent" StrokeThickness="0">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Итого:" FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource Slate900}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding TotalPrice, StringFormat='{0:N0} ₽'}"
+                               FontSize="22" FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- STEP 2: Seat Selection -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding CurrentStep, Converter={StaticResource StepVisibleConverter}, ConverterParameter=2}">
+
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                    <VerticalStackLayout Spacing="4">
+                        <Label FontSize="14" TextColor="{StaticResource Slate600}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding SelectedRoute.Origin}" FontAttributes="Bold" />
+                                    <Span Text=" → " />
+                                    <Span Text="{Binding SelectedRoute.Destination}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label Text="{Binding SelectedTrip.DepartureTime, StringFormat='{0:dd.MM.yyyy HH:mm}'}"
+                               FontSize="12" TextColor="{StaticResource Slate500}" />
+                        <Label Text="{Binding SelectedSeatsSummary}" FontSize="12"
+                               TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label FontSize="14" TextColor="{StaticResource Slate600}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Выберите " />
+                            <Span Text="{Binding SeatCount}" FontAttributes="Bold" />
+                            <Span Text=" мест" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
+                <!-- Legend -->
+                <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
+                    <HorizontalStackLayout Spacing="4">
+                        <BoxView WidthRequest="14" HeightRequest="14" CornerRadius="3"
+                                 Color="#22C55E" VerticalOptions="Center" />
+                        <Label Text="Свободно" FontSize="11" TextColor="{StaticResource Slate500}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="4">
+                        <BoxView WidthRequest="14" HeightRequest="14" CornerRadius="3"
+                                 Color="#2563EB" VerticalOptions="Center" />
+                        <Label Text="Выбрано" FontSize="11" TextColor="{StaticResource Slate500}" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="4">
+                        <BoxView WidthRequest="14" HeightRequest="14" CornerRadius="3"
+                                 Color="#D1D5DB" VerticalOptions="Center" />
+                        <Label Text="Занято" FontSize="11" TextColor="{StaticResource Slate500}" />
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+
+                <!-- Seat Grid -->
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                    <FlexLayout Wrap="Wrap" JustifyContent="Center" AlignItems="Center"
+                                BindableLayout.ItemsSource="{Binding SeatItems}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SeatItemModel">
+                                <Border WidthRequest="48" HeightRequest="48"
+                                        StrokeShape="RoundRectangle 8" Padding="0"
+                                        Margin="4"
+                                        BackgroundColor="{Binding DisplayColor}"
+                                        Stroke="Transparent" StrokeThickness="0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BookingViewModel}}, Path=ToggleSeatCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding Number}" FontSize="13" FontAttributes="Bold"
+                                           TextColor="{Binding TextColor}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- STEP 3: Passenger Info -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding CurrentStep, Converter={StaticResource StepVisibleConverter}, ConverterParameter=3}">
+
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="{StaticResource Slate200}" StrokeThickness="1">
+                    <VerticalStackLayout Spacing="4">
+                        <Label FontSize="14" TextColor="{StaticResource Slate600}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding SelectedRoute.Origin}" FontAttributes="Bold" />
+                                    <Span Text=" → " />
+                                    <Span Text="{Binding SelectedRoute.Destination}" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label FontSize="12" TextColor="{StaticResource Slate500}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding SelectedTrip.DepartureTime, StringFormat='{0:dd.MM.yyyy HH:mm}'}" />
+                                    <Span Text=" | " />
+                                    <Span Text="{Binding SelectedSeatsSummary}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Данные пассажира" FontSize="16" FontAttributes="Bold"
+                       TextColor="{StaticResource Slate900}" />
+
+                <Entry Placeholder="ФИО пассажира" Text="{Binding PassengerName}"
+                       BackgroundColor="White" PlaceholderColor="{StaticResource Slate400}" />
+                <Entry Placeholder="Телефон" Text="{Binding PassengerPhone}"
+                       Keyboard="Telephone" BackgroundColor="White"
+                       PlaceholderColor="{StaticResource Slate400}" />
+                <Entry Placeholder="Email" Text="{Binding PassengerEmail}"
+                       Keyboard="Email" BackgroundColor="White"
+                       PlaceholderColor="{StaticResource Slate400}" />
+
+                <Border BackgroundColor="{StaticResource Slate100}" StrokeShape="RoundRectangle 12" Padding="16"
+                        Stroke="Transparent" StrokeThickness="0">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Итого:" FontSize="18" FontAttributes="Bold"
+                               TextColor="{StaticResource Slate900}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding TotalPrice, StringFormat='{0:N0} ₽'}"
+                               FontSize="22" FontAttributes="Bold"
+                               TextColor="{StaticResource Primary}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- Step Navigation -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12"
+                  IsVisible="{Binding IsBookingComplete, Converter={StaticResource InverseBoolConverter}}">
+                <Button Grid.Column="0" Text="Назад"
+                        Command="{Binding GoPrevStepCommand}"
+                        IsEnabled="{Binding CurrentStep, Converter={StaticResource StepNotZeroConverter}}"
+                        BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                        BorderColor="{StaticResource Primary}" BorderWidth="1"
+                        HeightRequest="48" />
+                <Button Grid.Column="1" Text="Далее" Command="{Binding GoNextStepCommand}"
+                        BackgroundColor="{StaticResource Primary}" TextColor="White"
+                        FontAttributes="Bold" HeightRequest="48" />
+            </Grid>
+
+            <!-- Booking Complete State -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsBookingComplete}">
+                <Label Text="✅ Бронь создана!" FontSize="20" FontAttributes="Bold"
+                       TextColor="{StaticResource Success}" HorizontalOptions="Center" />
+                <Label Text="{Binding CreatedBooking.TotalPrice, StringFormat='Сумма: {0:N0} ₽'}"
+                       FontSize="16" TextColor="{StaticResource Slate600}" HorizontalOptions="Center" />
+
+                <Button Text="Оплатить сейчас" Command="{Binding GoToPaymentCommand}"
+                        BackgroundColor="{StaticResource Primary}" TextColor="White"
+                        FontAttributes="Bold" HeightRequest="48" />
+                <Button Text="Оплатить позже" Command="{Binding GoToTicketsCommand}"
+                        BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
+                        BorderColor="{StaticResource Primary}" BorderWidth="1" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

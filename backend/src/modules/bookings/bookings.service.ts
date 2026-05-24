@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { BookingStatus } from '@prisma/client';
 
@@ -37,44 +37,86 @@ export class BookingsService {
   async create(data: {
     userId: string;
     tripId: string;
-    seats: number;
+    seatNumbers: number[];
     passengerName?: string;
     passengerPhone?: string;
+    passengerEmail?: string;
   }) {
-    this.logger.log(`create (userId: ${data.userId}, tripId: ${data.tripId}, seats: ${data.seats})`);
+    this.logger.log(`create (userId: ${data.userId}, tripId: ${data.tripId}, seats: ${data.seatNumbers.length})`);
+
     const trip = await this.prisma.trip.findUnique({
       where: { id: data.tripId },
-      include: { route: true },
+      include: { route: true, bookings: {
+        where: { status: { in: ['CONFIRMED', 'PENDING'] } },
+      } },
     });
 
     if (!trip) {
-      throw new Error('Trip not found');
+      throw new NotFoundException('Trip not found');
+    }
+
+    const totalSeats = trip.totalSeats;
+
+    // Validate seat numbers
+    const seatNumbers = [...new Set(data.seatNumbers)];
+    for (const sn of seatNumbers) {
+      if (sn < 1 || sn > totalSeats) {
+        throw new BadRequestException(`Invalid seat number: ${sn}. Must be 1-${totalSeats}`);
+      }
+    }
+
+    // Check which seats are already booked
+    const bookedSeatNumbers = new Set<number>();
+    for (const booking of trip.bookings) {
+      for (const sn of booking.seatNumbers) {
+        bookedSeatNumbers.add(sn);
+      }
+    }
+
+    const alreadyBooked = seatNumbers.filter(sn => bookedSeatNumbers.has(sn));
+    if (alreadyBooked.length > 0) {
+      throw new BadRequestException(`Seats already booked: ${alreadyBooked.join(', ')}`);
     }
 
     const routePrice = Number(trip.route.price);
-    const totalPrice = routePrice * data.seats;
+    const totalPrice = routePrice * seatNumbers.length;
 
-    return this.prisma.booking.create({
+    // Create booking with tickets
+    const booking = await this.prisma.booking.create({
       data: {
         userId: data.userId,
         tripId: data.tripId,
-        seats: data.seats,
+        seats: seatNumbers.length,
+        seatNumbers,
         totalPrice,
         passengerName: data.passengerName,
         passengerPhone: data.passengerPhone,
+        passengerEmail: data.passengerEmail,
         status: BookingStatus.PENDING,
+        tickets: {
+          create: seatNumbers.map((seatNumber) => ({
+            tripId: data.tripId,
+            seatNumber,
+            qrCode: `TICKET-${crypto.randomUUID().replace(/-/g, '').toUpperCase()}`,
+          })),
+        },
       },
       include: {
         trip: { include: { route: true } },
+        tickets: true,
       },
     });
+
+    return booking;
   }
 
   async update(id: string, data: Partial<{
     seats: number;
+    seatNumbers: number[];
     status: BookingStatus;
     passengerName: string;
     passengerPhone: string;
+    passengerEmail: string;
   }>) {
     this.logger.log(`update (id: ${id})`);
     return this.prisma.booking.update({
@@ -123,7 +165,7 @@ export class BookingsService {
     });
 
     if (!booking) {
-      throw new Error('Booking not found');
+      throw new NotFoundException('Booking not found');
     }
 
     if (booking.payment) {

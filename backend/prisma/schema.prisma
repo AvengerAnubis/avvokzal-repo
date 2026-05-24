@@ -45,6 +45,18 @@ enum TripStatus {
   DELAYED
 }
 
+enum ChatStatus {
+  WAITING
+  ACTIVE
+  CLOSED
+}
+
+enum MessageSenderRole {
+  DRIVER
+  OPERATOR
+  ADMIN
+}
+
 // ============== MODELS ==============
 
 // Пользователи (включая админов, водителей, операторов)
@@ -63,9 +75,11 @@ model User {
   // Relations
   bookings      Booking[]
   favorites     Favorite[]
-  chatMessages  ChatMessage[] @relation("DriverMessages")
   operatedTrips Trip[]       @relation("OperatorTrips")
   drivenTrips   Trip[]       @relation("DriverTrips")
+  chatsAsDriver   Chat[]     @relation("DriverChats")
+  chatsAsOperator Chat[]     @relation("OperatorChats")
+  messages        Message[]
 
   @@map("users")
 }
@@ -101,6 +115,7 @@ model Trip {
   busNumber   String?    // Номер автобуса
   driverId    String?    // Водитель
   operatorId  String?    // Оператор (кто корректирует)
+  totalSeats  Int        @default(40) // Количество мест в автобусе
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -121,10 +136,12 @@ model Booking {
   userId        String
   tripId        String
   seats         Int            // Количество мест
+  seatNumbers   Int[]          // Номера выбранных мест
   totalPrice    Decimal        @db.Decimal(10, 2)
   status        BookingStatus @default(PENDING)
   passengerName String?
   passengerPhone String?
+  passengerEmail String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -203,16 +220,37 @@ model Delay {
   @@map("delays")
 }
 
-// Чат между водителем и оператором
-model ChatMessage {
-  id         String   @id @default(uuid())
-  driverId   String
-  content    String   @db.Text
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
+// Чаты (водитель → оператор)
+model Chat {
+  id              String     @id @default(uuid())
+  driverId        String
+  operatorId      String?
+  status          ChatStatus @default(WAITING)
+  lastHeartbeatAt DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   // Relations
-  driver User @relation("DriverMessages", fields: [driverId], references: [id])
+  driver   User      @relation("DriverChats", fields: [driverId], references: [id])
+  operator User?     @relation("OperatorChats", fields: [operatorId], references: [id])
+  messages Message[]
 
-  @@map("chat_messages")
+  @@map("chats")
+}
+
+// Сообщения чата
+model Message {
+  id         String            @id @default(uuid())
+  chatId     String
+  senderId   String
+  senderRole MessageSenderRole
+  text       String            @db.Text
+  createdAt  DateTime          @default(now())
+
+  // Relations
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [senderId], references: [id])
+
+  @@map("messages")
 }

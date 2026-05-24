@@ -169,6 +169,7 @@ export default function OperatorPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Оператор</h1>
         <div className="flex gap-2">
+          <Button label="Чат-поддержка" icon="pi pi-comments" onClick={() => router.push('/operator/chats')} />
           <Button label="Добавить рейс" icon="pi pi-plus" onClick={openCreateDialog} />
           <Button label="Обновить" icon="pi pi-refresh" className="p-button-outlined" onClick={loadData} />
         </div>

@@ -58,10 +58,18 @@ export class TripsService {
     arrivalTime: Date;
     busNumber?: string;
     driverId?: string;
+    totalSeats?: number;
   }) {
     this.logger.log(`create (routeId: ${data.routeId})`);
     return this.prisma.trip.create({
-      data,
+      data: {
+        routeId: data.routeId,
+        departureTime: data.departureTime,
+        arrivalTime: data.arrivalTime,
+        busNumber: data.busNumber,
+        driverId: data.driverId,
+        totalSeats: data.totalSeats ?? 40,
+      },
       include: { route: true },
     });
   }
@@ -73,6 +81,7 @@ export class TripsService {
     busNumber: string;
     driverId: string;
     operatorId: string;
+    totalSeats: number;
   }>) {
     this.logger.log(`update (id: ${id})`);
     return this.prisma.trip.update({
@@ -150,15 +159,29 @@ export class TripsService {
       },
     });
 
-    if (!trip) return { totalSeats: 40, bookedSeats: 0, availableSeats: 40 };
+    if (!trip) return { totalSeats: 40, bookedSeats: 0, availableSeats: 40, seatMap: [] };
 
-    const bookedSeats = trip.bookings.reduce((sum, b) => sum + b.seats, 0);
-    const totalSeats = 40;
+    const totalSeats = trip.totalSeats;
+    const bookedSeatNumbers = new Set<number>();
+    for (const booking of trip.bookings) {
+      for (const sn of booking.seatNumbers) {
+        bookedSeatNumbers.add(sn);
+      }
+    }
+
+    const seatMap: { number: number; status: string }[] = [];
+    for (let i = 1; i <= totalSeats; i++) {
+      seatMap.push({
+        number: i,
+        status: bookedSeatNumbers.has(i) ? 'booked' : 'available',
+      });
+    }
 
     return {
       totalSeats,
-      bookedSeats,
-      availableSeats: Math.max(0, totalSeats - bookedSeats),
+      bookedSeats: bookedSeatNumbers.size,
+      availableSeats: totalSeats - bookedSeatNumbers.size,
+      seatMap,
     };
   }
 }
