@@ -12,10 +12,12 @@ import { InputText } from 'primereact/inputtext';
 import { useAuth } from '@/lib/auth/context';
 import { bookingsApi, routesApi, tripsApi, usersApi } from '@/lib/api';
 import Link from 'next/link';
+import { useToast } from '@/lib/toast/context';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const toast = useToast();
   const [stats, setStats] = useState({
     totalBookings: 0,
     confirmedBookings: 0,
@@ -95,7 +97,7 @@ export default function AdminDashboardPage() {
 
   const handleCreateTrip = async () => {
     if (!createForm.routeId || !createForm.departureTime || !createForm.arrivalTime) {
-      alert('Заполните обязательные поля: маршрут, время отправления и прибытия');
+      toast.warn('Заполните обязательные поля: маршрут, время отправления и прибытия');
       return;
     }
     try {
@@ -111,7 +113,7 @@ export default function AdminDashboardPage() {
       loadDashboardData();
     } catch (error) {
       console.error('Error creating trip:', error);
-      alert('Ошибка при создании рейса');
+      toast.error('Ошибка при создании рейса');
     } finally {
       setCreating(false);
     }

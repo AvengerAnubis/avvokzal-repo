@@ -5,14 +5,19 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { SelectButton } from 'primereact/selectbutton';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { Tag } from 'primereact/tag';
 import { tripsApi, chatApi, routesApi } from '@/lib/api';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/lib/toast/context';
 
 export default function DriverPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<'routes' | 'chat'>('routes');
   const [trips, setTrips] = useState<any[]>([]);
   const [routes, setRoutes] = useState<any[]>([]);
@@ -95,12 +100,12 @@ export default function DriverPage() {
   };
 
   const statusTemplate = (rowData: any) => {
-    const colors: Record<string, string> = {
-      SCHEDULED: 'bg-green-100 text-green-800',
-      DELAYED: 'bg-yellow-100 text-yellow-800',
-      IN_PROGRESS: 'bg-blue-100 text-blue-800',
-      COMPLETED: 'bg-gray-100 text-gray-800',
-      CANCELLED: 'bg-red-100 text-red-800',
+    const severity: Record<string, 'success' | 'warning' | 'info' | 'secondary' | 'danger'> = {
+      SCHEDULED: 'success',
+      DELAYED: 'warning',
+      IN_PROGRESS: 'info',
+      COMPLETED: 'secondary',
+      CANCELLED: 'danger',
     };
     const labels: Record<string, string> = {
       SCHEDULED: 'В ожидании',
@@ -109,11 +114,7 @@ export default function DriverPage() {
       COMPLETED: 'Завершён',
       CANCELLED: 'Отменён',
     };
-    return (
-      <span className={`px-2 py-1 rounded text-sm ${colors[rowData.status] || 'bg-gray-100'}`}>
-        {labels[rowData.status] || rowData.status}
-      </span>
-    );
+    return <Tag severity={severity[rowData.status] || 'info'} value={labels[rowData.status] || rowData.status} />;
   };
 
   const handleSendMessage = async () => {
@@ -134,7 +135,7 @@ export default function DriverPage() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Ошибка при отправке сообщения');
+      toast.error('Ошибка при отправке сообщения');
     } finally {
       setSending(false);
     }
@@ -147,20 +148,16 @@ export default function DriverPage() {
         <Button label="Обновить" icon="pi pi-refresh" className="p-button-outlined" onClick={loadData} />
       </div>
 
-      <div className="flex gap-4 mb-4">
-        <Button
-          label="Мои рейсы"
-          icon="pi pi-car"
-          className={activeTab === 'routes' ? '' : 'p-button-outlined'}
-          onClick={() => setActiveTab('routes')}
-        />
-        <Button
-          label="Чат с оператором"
-          icon="pi pi-comments"
-          className={activeTab === 'chat' ? '' : 'p-button-outlined'}
-          onClick={() => setActiveTab('chat')}
-        />
-      </div>
+      <SelectButton
+        value={activeTab}
+        onChange={(e) => setActiveTab(e.value)}
+        options={[
+          { label: 'Мои рейсы', value: 'routes', icon: 'pi pi-car' },
+          { label: 'Чат с оператором', value: 'chat', icon: 'pi pi-comments' },
+        ]}
+        optionLabel="label"
+        className="mb-4"
+      />
 
       {activeTab === 'routes' && (
         <Card>
@@ -177,7 +174,7 @@ export default function DriverPage() {
 
       {activeTab === 'chat' && (
         <div className="space-y-4">
-          <Card className="h-96 overflow-y-auto">
+          <Card><ScrollPanel style={{ width: '100%', height: '24rem' }}>
             {messages.length === 0 ? (
               <p className="text-center text-muted-color py-8">Нет сообщений. Напишите в чат, чтобы связаться с оператором.</p>
             ) : (
@@ -210,6 +207,7 @@ export default function DriverPage() {
                 ✅ Оператор {chat.operator.firstName} {chat.operator.lastName} на связи
               </div>
             )}
+          </ScrollPanel>
           </Card>
 
           <Card>

@@ -5,12 +5,16 @@ import { useRouter, useParams } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { Tag } from 'primereact/tag';
 import { useAuth } from '@/lib/auth/context';
 import { chatApi } from '@/lib/api';
+import { useToast } from '@/lib/toast/context';
 
 export default function AdminChatDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const toast = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [chat, setChat] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -50,7 +54,7 @@ export default function AdminChatDetailPage() {
       setMessages((prev: any[]) => [...prev, res.data]);
       setMessage('');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Ошибка при отправке');
+      toast.error(error.response?.data?.message || 'Ошибка при отправке');
     } finally {
       setSending(false);
     }
@@ -71,16 +75,15 @@ export default function AdminChatDetailPage() {
             Чат: {chat.driver?.firstName} {chat.driver?.lastName}
             {chat.operator && <> → {chat.operator.firstName} {chat.operator.lastName}</>}
           </span>
-          <span className={`ml-3 text-sm px-2 py-1 rounded ${
-            isClosed ? 'bg-gray-100 text-gray-500' :
-            chat.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-          }`}>
-            {isClosed ? 'Закрыт' : chat.status === 'ACTIVE' ? 'Активен' : 'Ожидание'}
-          </span>
+          <Tag
+            severity={isClosed ? 'secondary' : chat.status === 'ACTIVE' ? 'success' : 'warning'}
+            value={isClosed ? 'Закрыт' : chat.status === 'ACTIVE' ? 'Активен' : 'Ожидание'}
+            className="ml-3"
+          />
         </div>
       </div>
 
-      <Card className="h-[60vh] overflow-y-auto">
+      <Card><ScrollPanel style={{ width: '100%', height: '60vh' }}>
         {messages.length === 0 ? (
           <p className="text-center text-muted-color py-8">Нет сообщений</p>
         ) : (
@@ -105,7 +108,7 @@ export default function AdminChatDetailPage() {
             <div ref={chatEndRef} />
           </div>
         )}
-      </Card>
+      </ScrollPanel></Card>
 
       {!isClosed && (
         <Card>

@@ -12,9 +12,11 @@ import { tripsApi, delaysApi, routesApi, usersApi } from '@/lib/api';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/lib/toast/context';
 
 export default function OperatorPage() {
   const router = useRouter();
+  const toast = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [trips, setTrips] = useState<any[]>([]);
   const [delays, setDelays] = useState<any[]>([]);
@@ -116,7 +118,7 @@ export default function OperatorPage() {
       loadData();
     } catch (error) {
       console.error('Error updating trip time:', error);
-      alert('Ошибка при обновлении времени рейса');
+      toast.error('Ошибка при обновлении времени рейса');
     } finally {
       setSaving(false);
     }
@@ -129,7 +131,7 @@ export default function OperatorPage() {
 
   const handleCreateTrip = async () => {
     if (!createForm.routeId || !createForm.departureTime || !createForm.arrivalTime) {
-      alert('Заполните обязательные поля: маршрут, время отправления и прибытия');
+      toast.warn('Заполните обязательные поля: маршрут, время отправления и прибытия');
       return;
     }
     try {
@@ -145,7 +147,7 @@ export default function OperatorPage() {
       loadData();
     } catch (error) {
       console.error('Error creating trip:', error);
-      alert('Ошибка при создании рейса');
+      toast.error('Ошибка при создании рейса');
     } finally {
       setCreating(false);
     }

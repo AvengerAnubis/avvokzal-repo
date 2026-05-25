@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
+import { RadioButton } from 'primereact/radiobutton';
 import { useAuth } from '@/lib/auth/context';
 import api from '@/lib/api';
 
@@ -229,15 +230,16 @@ function PaymentPageContent() {
                 onClick={() => setSelectedMethod(method.value)}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    selectedMethod === method.value ? 'border-blue-600 bg-blue-600' : 'border-slate-400 bg-white'
-                  }`}>
-                    {selectedMethod === method.value && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                    )}
-                  </div>
+                  <RadioButton
+                    inputId={method.value}
+                    value={method.value}
+                    onChange={(e) => setSelectedMethod(e.value)}
+                    checked={selectedMethod === method.value}
+                  />
                   <i className={`${method.icon} text-lg`} style={{ color: selectedMethod === method.value ? '#2563eb' : '#475569' }}></i>
-                  <span className="font-medium" style={{ color: selectedMethod === method.value ? '#1d4ed8' : '#334155' }}>{method.label}</span>
+                  <label htmlFor={method.value} className="font-medium cursor-pointer" style={{ color: selectedMethod === method.value ? '#1d4ed8' : '#334155' }}>
+                    {method.label}
+                  </label>
                 </div>
               </div>
             ))}

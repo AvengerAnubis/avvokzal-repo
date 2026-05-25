@@ -10,13 +10,16 @@ import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { Steps } from 'primereact/steps';
 import { Tag } from 'primereact/tag';
 import { routesApi, tripsApi, bookingsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth/context';
+import { useToast } from '@/lib/toast/context';
 import SeatMap from '@/components/SeatMap';
 
 export default function RoutesPage() {
   const router = useRouter();
+  const toast = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [routes, setRoutes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,7 +150,7 @@ export default function RoutesPage() {
       setBookingSuccess(true);
     } catch (error: any) {
       console.error('Error creating booking:', error);
-      alert(error.response?.data?.message || 'Ошибка при создании бронирования');
+      toast.error(error.response?.data?.message || 'Ошибка при создании бронирования');
     } finally {
       setBookingLoading(false);
     }
@@ -176,9 +179,7 @@ export default function RoutesPage() {
 
   const statusTemplate = (rowData: any) => {
     return (
-      <span className={`px-2 py-1 rounded text-sm ${rowData.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-        {rowData.isActive ? 'Активный' : 'Неактивный'}
-      </span>
+      <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? 'Активный' : 'Неактивный'} />
     );
   };
 
@@ -211,7 +212,11 @@ export default function RoutesPage() {
     setActiveStep(0);
   };
 
-  const stepLabels = ['Рейс и места', 'Выбор мест', 'Данные пассажира'];
+  const stepItems = [
+    { label: 'Рейс и места' },
+    { label: 'Выбор мест' },
+    { label: 'Данные пассажира' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -257,24 +262,7 @@ export default function RoutesPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Steps indicator */}
-            <div className="flex justify-center gap-1 mb-4">
-              {stepLabels.map((label, i) => (
-                <div key={i} className="flex items-center">
-                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs ${
-                    i === activeStep ? 'bg-primary-100 text-primary font-bold' :
-                    i < activeStep ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
-                  }`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                      i === activeStep ? 'bg-primary text-white' :
-                      i < activeStep ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500'
-                    }`}>{i + 1}</span>
-                    <span className="hidden sm:inline">{label}</span>
-                  </div>
-                  {i < stepLabels.length - 1 && <div className="w-6 h-px bg-gray-300 mx-1"></div>}
-                </div>
-              ))}
-            </div>
+            <Steps model={stepItems} activeIndex={activeStep} className="mb-4" />
 
             {/* Step 1: Select trip + seat count */}
             {activeStep === 0 && (

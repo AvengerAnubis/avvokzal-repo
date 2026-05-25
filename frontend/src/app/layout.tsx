@@ -1,6 +1,8 @@
 import { PrimeReactProvider } from 'primereact/api';
 import Navbar from '@/components/Navbar';
 import { AuthProvider } from '@/lib/auth/context';
+import { ToastProvider } from '@/lib/toast/context';
+import { ConfirmProvider } from '@/lib/confirm/context';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -12,8 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </head>
         <body className="p-0 m-0 overflow-y-auto overflow-x-clip min-h-screen flex flex-col">
           <AuthProvider>
-            <Navbar className="sticky top-0 z-50" />
-            <main className="flex-1 container mx-auto px-4 py-4">{children}</main>
+            <ToastProvider>
+              <ConfirmProvider>
+                <Navbar className="sticky top-0 z-50" />
+                <main className="flex-1 container mx-auto px-4 py-4">{children}</main>
+              </ConfirmProvider>
+            </ToastProvider>
           </AuthProvider>
           <footer className="bg-gray-800 text-white py-8 mt-auto">
             <div className="container mx-auto px-4">

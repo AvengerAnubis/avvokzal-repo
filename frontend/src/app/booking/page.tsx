@@ -9,9 +9,11 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
+import { Steps } from 'primereact/steps';
 import { Tag } from 'primereact/tag';
 import { useAuth } from '@/lib/auth/context';
 import { tripsApi, routesApi, bookingsApi } from '@/lib/api';
+import { useToast } from '@/lib/toast/context';
 import SeatMap from '@/components/SeatMap';
 
 interface TripWithRoute {
@@ -37,6 +39,7 @@ interface TripWithRoute {
 
 export default function BookingPage() {
   const router = useRouter();
+  const toast = useToast();
   const { user, isAuthenticated } = useAuth();
   const [trips, setTrips] = useState<TripWithRoute[]>([]);
   const [routes, setRoutes] = useState<any[]>([]);
@@ -53,7 +56,11 @@ export default function BookingPage() {
   const [activeStep, setActiveStep] = useState(0);
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  const stepLabels = ['Кол-во мест', 'Выбор мест', 'Данные'];
+  const stepItems = [
+    { label: 'Кол-во мест' },
+    { label: 'Выбор мест' },
+    { label: 'Данные' },
+  ];
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -131,7 +138,7 @@ export default function BookingPage() {
       const available = response.data.availableSeats || 0;
 
       if (seats > available) {
-        alert(`Доступно только ${available} мест`);
+        toast.warn(`Доступно только ${available} мест`);
         setBookingLoading(false);
         return;
       }
@@ -153,7 +160,7 @@ export default function BookingPage() {
       setShowSuccess(true);
     } catch (error: any) {
       console.error('Error creating booking:', error);
-      alert(error.response?.data?.message || 'Ошибка при создании бронирования');
+      toast.error(error.response?.data?.message || 'Ошибка при создании бронирования');
     } finally {
       setBookingLoading(false);
     }
@@ -234,24 +241,7 @@ export default function BookingPage() {
       >
         {selectedTrip && (
           <div className="space-y-4">
-            {/* Steps */}
-            <div className="flex justify-center gap-1 mb-4">
-              {stepLabels.map((label, i) => (
-                <div key={i} className="flex items-center">
-                  <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs ${
-                    i === activeStep ? 'bg-primary-100 text-primary font-bold' :
-                    i < activeStep ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
-                  }`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                      i === activeStep ? 'bg-primary text-white' :
-                      i < activeStep ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500'
-                    }`}>{i + 1}</span>
-                    <span className="hidden sm:inline">{label}</span>
-                  </div>
-                  {i < stepLabels.length - 1 && <div className="w-6 h-px bg-gray-300 mx-1"></div>}
-                </div>
-              ))}
-            </div>
+            <Steps model={stepItems} activeIndex={activeStep} className="mb-4" />
 
             {/* Step 0: Trip info + seat count */}
             {activeStep === 0 && (

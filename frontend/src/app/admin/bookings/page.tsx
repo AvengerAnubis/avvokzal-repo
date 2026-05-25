@@ -10,10 +10,14 @@ import { bookingsApi } from '@/lib/api';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/lib/toast/context';
+import { useConfirm } from '@/lib/confirm/context';
 
 export default function AdminBookingsPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
@@ -45,19 +49,23 @@ export default function AdminBookingsPage() {
       loadBookings();
     } catch (error) {
       console.error('Error confirming booking:', error);
-      alert('Ошибка при подтверждении бронирования');
+      toast.error('Ошибка при подтверждении бронирования');
     }
   };
 
   const handleCancel = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите отменить это бронирование?')) return;
-    try {
-      await bookingsApi.cancel(id);
-      loadBookings();
-    } catch (error) {
-      console.error('Error cancelling booking:', error);
-      alert('Ошибка при отмене бронирования');
-    }
+    confirm({
+      message: 'Вы уверены, что хотите отменить это бронирование?',
+      accept: async () => {
+        try {
+          await bookingsApi.cancel(id);
+          loadBookings();
+        } catch (error) {
+          console.error('Error cancelling booking:', error);
+          toast.error('Ошибка при отмене бронирования');
+        }
+      },
+    });
   };
 
   const statusTemplate = (rowData: any) => {

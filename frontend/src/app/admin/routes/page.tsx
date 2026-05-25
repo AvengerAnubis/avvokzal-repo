@@ -6,10 +6,13 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
+import { Tag } from 'primereact/tag';
 import { routesApi } from '@/lib/api';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/lib/toast/context';
+import { useConfirm } from '@/lib/confirm/context';
 
 interface Route {
   id?: string;
@@ -25,6 +28,8 @@ interface Route {
 export default function AdminRoutesPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [routes, setRoutes] = useState<Route[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
@@ -109,22 +114,25 @@ export default function AdminRoutesPage() {
       loadRoutes();
     } catch (error) {
       console.error('Error saving route:', error);
-      alert('Ошибка при сохранении маршрута');
+      toast.error('Ошибка при сохранении маршрута');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот маршрут?')) return;
-    
-    try {
-      await routesApi.delete(id);
-      loadRoutes();
-    } catch (error) {
-      console.error('Error deleting route:', error);
-      alert('Ошибка при удалении маршрута');
-    }
+    confirm({
+      message: 'Вы уверены, что хотите удалить этот маршрут?',
+      accept: async () => {
+        try {
+          await routesApi.delete(id);
+          loadRoutes();
+        } catch (error) {
+          console.error('Error deleting route:', error);
+          toast.error('Ошибка при удалении маршрута');
+        }
+      },
+    });
   };
 
   const nameTemplate = (rowData: Route) => {
@@ -138,9 +146,7 @@ export default function AdminRoutesPage() {
 
   const statusTemplate = (rowData: Route) => {
     return (
-      <span className={`px-2 py-1 rounded text-sm ${rowData.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-        {rowData.isActive ? 'Активный' : 'Неактивный'}
-      </span>
+      <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? 'Активный' : 'Неактивный'} />
     );
   };
 

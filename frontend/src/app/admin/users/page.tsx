@@ -7,10 +7,13 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
+import { Tag } from 'primereact/tag';
 import { usersApi } from '@/lib/api';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/lib/toast/context';
+import { useConfirm } from '@/lib/confirm/context';
 
 interface User {
   id?: string;
@@ -27,6 +30,8 @@ interface User {
 export default function AdminUsersPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [users, setUsers] = useState<User[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -106,7 +111,7 @@ export default function AdminUsersPage() {
       } else {
         // Create new
         if (!formData.password) {
-          alert('Пароль обязателен для нового пользователя');
+          toast.warn('Пароль обязателен для нового пользователя');
           return;
         }
         await usersApi.create({
@@ -123,22 +128,25 @@ export default function AdminUsersPage() {
       loadUsers();
     } catch (error) {
       console.error('Error saving user:', error);
-      alert('Ошибка при сохранении пользователя');
+      toast.error('Ошибка при сохранении пользователя');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите заблокировать этого пользователя?')) return;
-
-    try {
-      await usersApi.delete(id);
-      loadUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      alert('Ошибка при удалении пользователя');
-    }
+    confirm({
+      message: 'Вы уверены, что хотите заблокировать этого пользователя?',
+      accept: async () => {
+        try {
+          await usersApi.delete(id);
+          loadUsers();
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          toast.error('Ошибка при удалении пользователя');
+        }
+      },
+    });
   };
 
   const roleOptions = [
@@ -155,24 +163,20 @@ export default function AdminUsersPage() {
       DRIVER: 'Водитель',
       OPERATOR: 'Оператор',
     };
-    const colors: Record<string, string> = {
-      USER: 'bg-blue-100 text-blue-800',
-      ADMIN: 'bg-purple-100 text-purple-800',
-      DRIVER: 'bg-green-100 text-green-800',
-      OPERATOR: 'bg-orange-100 text-orange-800',
+    const severity: Record<string, 'info' | 'warning' | 'success' | 'danger'> = {
+      USER: 'info',
+      ADMIN: 'warning',
+      DRIVER: 'success',
+      OPERATOR: 'danger',
     };
     return (
-      <span className={`px-2 py-1 rounded text-sm ${colors[rowData.role] || 'bg-gray-100'}`}>
-        {labels[rowData.role] || rowData.role}
-      </span>
+      <Tag severity={severity[rowData.role] || 'info'} value={labels[rowData.role] || rowData.role} />
     );
   };
 
   const statusTemplate = (rowData: User) => {
     return (
-      <span className={`px-2 py-1 rounded text-sm ${rowData.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-        {rowData.isActive ? 'Активен' : 'Заблокирован'}
-      </span>
+      <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? 'Активен' : 'Заблокирован'} />
     );
   };
 

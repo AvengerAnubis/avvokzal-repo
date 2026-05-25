@@ -5,8 +5,10 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { useState, useEffect } from 'react';
 import { usersApi } from '@/lib/api';
+import { useToast } from '@/lib/toast/context';
 
 export default function ProfileSettingsPage() {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -44,10 +46,10 @@ export default function ProfileSettingsPage() {
       // Update localStorage with the new data
       const updatedUser = { ...currentUser, ...formData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      alert('Профиль успешно обновлён');
+      toast.success('Профиль успешно обновлён');
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Ошибка при обновлении профиля');
+      toast.error('Ошибка при обновлении профиля');
     }
   };
 

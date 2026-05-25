@@ -5,12 +5,18 @@ import { useRouter, useParams } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { Tag } from 'primereact/tag';
 import { useAuth } from '@/lib/auth/context';
 import { chatApi } from '@/lib/api';
+import { useToast } from '@/lib/toast/context';
+import { useConfirm } from '@/lib/confirm/context';
 
 export default function OperatorChatPage() {
   const router = useRouter();
   const params = useParams();
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [chat, setChat] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -63,7 +69,7 @@ export default function OperatorChatPage() {
       setMessages(prev => [...prev, res.data]);
       setMessage('');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Ошибка при отправке');
+      toast.error(error.response?.data?.message || 'Ошибка при отправке');
     } finally {
       setSending(false);
     }
@@ -71,18 +77,22 @@ export default function OperatorChatPage() {
 
   const handleCloseChat = async () => {
     if (!user || !params?.id) return;
-    if (!confirm('Завершить чат?')) return;
-    try {
-      setClosing(true);
-      await chatApi.close(params.id as string, user.id);
-      setChat((prev: any) => ({ ...prev, status: 'CLOSED' }));
-      alert('Чат завершён');
-      router.push('/operator/chats');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Ошибка при закрытии');
-    } finally {
-      setClosing(false);
-    }
+    confirm({
+      message: 'Завершить чат?',
+      accept: async () => {
+        try {
+          setClosing(true);
+          await chatApi.close(params.id as string, user.id);
+          setChat((prev: any) => ({ ...prev, status: 'CLOSED' }));
+          toast.success('Чат завершён');
+          router.push('/operator/chats');
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Ошибка при закрытии');
+        } finally {
+          setClosing(false);
+        }
+      },
+    });
   };
 
   if (!chat) {
@@ -97,12 +107,11 @@ export default function OperatorChatPage() {
           <span className="text-xl font-bold">
             Чат с {chat.driver?.firstName} {chat.driver?.lastName}
           </span>
-          <span className={`ml-3 text-sm px-2 py-1 rounded ${
-            chat.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-            chat.status === 'WAITING' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'
-          }`}>
-            {chat.status === 'ACTIVE' ? 'Активен' : chat.status === 'WAITING' ? 'Ожидание' : 'Закрыт'}
-          </span>
+          <Tag
+            severity={chat.status === 'ACTIVE' ? 'success' : chat.status === 'WAITING' ? 'warning' : 'secondary'}
+            value={chat.status === 'ACTIVE' ? 'Активен' : chat.status === 'WAITING' ? 'Ожидание' : 'Закрыт'}
+            className="ml-3"
+          />
         </div>
         {chat.status !== 'CLOSED' && (
           <Button
@@ -115,7 +124,7 @@ export default function OperatorChatPage() {
         )}
       </div>
 
-      <Card className="h-[60vh] overflow-y-auto">
+      <Card><ScrollPanel style={{ width: '100%', height: '60vh' }}>
         {messages.length === 0 ? (
           <p className="text-center text-muted-color py-8">Нет сообщений</p>
         ) : (
@@ -139,7 +148,7 @@ export default function OperatorChatPage() {
             <div ref={chatEndRef} />
           </div>
         )}
-      </Card>
+      </ScrollPanel></Card>
 
       {chat.status !== 'CLOSED' && (
         <Card>

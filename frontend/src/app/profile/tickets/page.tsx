@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { bookingsApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
@@ -52,19 +53,21 @@ export default function ProfileTicketsPage() {
             header="Билет"
             body={(row) => (
               row.status === 'PENDING' ? (
-                <button 
-                  className="p-button p-button-sm p-button-success"
+                <Button 
+                  label="Оплатить"
+                  icon="pi pi-credit-card"
+                  size="small"
+                  severity="success"
                   onClick={() => router.push(`/payment?bookingId=${row.id}`)}
-                >
-                  Оплатить
-                </button>
+                />
               ) : (
-                <button 
-                  className="p-button p-button-sm p-button-outlined"
+                <Button 
+                  label="Скачать"
+                  icon="pi pi-download"
+                  size="small"
+                  outlined
                   onClick={() => router.push(`/ticket?id=${row.id}`)}
-                >
-                  Скачать
-                </button>
+                />
               )
             )}
           />

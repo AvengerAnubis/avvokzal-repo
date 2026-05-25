@@ -7,11 +7,13 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { routesApi, favoritesApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useConfirm } from '@/lib/confirm/context';
 
 export default function ProfileFavoritesPage() {
   const [favoriteRoutes, setFavoriteRoutes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { confirm } = useConfirm();
 
   useEffect(() => {
     const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
@@ -79,14 +81,19 @@ export default function ProfileFavoritesPage() {
                   <Button 
                     icon="pi pi-trash" 
                     className="p-button-text p-button-danger p-button-sm"
-                    onClick={async () => {
-                      if (userId && confirm('Удалить из избранного?')) {
-                        try {
-                          await favoritesApi.remove(userId, row.id);
-                          setFavoriteRoutes(prev => prev.filter(r => r.id !== row.id));
-                        } catch (e) {
-                          console.error(e);
-                        }
+                    onClick={() => {
+                      if (userId) {
+                        confirm({
+                          message: 'Удалить из избранного?',
+                          accept: async () => {
+                            try {
+                              await favoritesApi.remove(userId, row.id);
+                              setFavoriteRoutes(prev => prev.filter(r => r.id !== row.id));
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          },
+                        });
                       }
                     }}
                   />

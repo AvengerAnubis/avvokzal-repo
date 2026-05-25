@@ -7,9 +7,11 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { useAuth } from '@/lib/auth/context';
 import { chatApi } from '@/lib/api';
+import { useToast } from '@/lib/toast/context';
 
 export default function OperatorChatsPage() {
   const router = useRouter();
+  const toast = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [availableChats, setAvailableChats] = useState<any[]>([]);
   const [activeChats, setActiveChats] = useState<any[]>([]);
@@ -51,7 +53,7 @@ export default function OperatorChatsPage() {
       await chatApi.assign(chatId, user.id);
       router.push(`/operator/chats/${chatId}`);
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Не удалось подключиться к чату');
+      toast.error(error.response?.data?.message || 'Не удалось подключиться к чату');
     } finally {
       setAssigningId(null);
     }
