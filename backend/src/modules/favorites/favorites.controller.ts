@@ -1,27 +1,29 @@
-import { Controller, Get, Post, Delete, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Req, UseGuards } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('api/favorites')
+@UseGuards(JwtAuthGuard)
 export class FavoritesController {
   constructor(private favoritesService: FavoritesService) {}
 
   @Get()
-  async findAll(@Query('userId') userId: string) {
-    return this.favoritesService.findAll(userId);
+  async findAll(@Req() req: any) {
+    return this.favoritesService.findAll(req.user.userId);
   }
 
-  @Post(':routeId')
-  async add(@Query('userId') userId: string, @Param('routeId') routeId: string) {
-    return this.favoritesService.add(userId, routeId);
+  @Post()
+  async add(@Req() req: any, @Body() body: { routeId: string }) {
+    return this.favoritesService.add(req.user.userId, body.routeId);
   }
 
-  @Delete(':routeId')
-  async remove(@Query('userId') userId: string, @Param('routeId') routeId: string) {
-    return this.favoritesService.remove(userId, routeId);
+  @Delete()
+  async remove(@Req() req: any, @Body() body: { routeId: string }) {
+    return this.favoritesService.remove(req.user.userId, body.routeId);
   }
 
   @Get('check/:routeId')
-  async isFavorite(@Query('userId') userId: string, @Param('routeId') routeId: string) {
-    return this.favoritesService.isFavorite(userId, routeId);
+  async isFavorite(@Req() req: any, @Param('routeId') routeId: string) {
+    return this.favoritesService.isFavorite(req.user.userId, routeId);
   }
 }

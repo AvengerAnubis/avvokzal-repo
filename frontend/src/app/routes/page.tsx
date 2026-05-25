@@ -54,7 +54,7 @@ export default function RoutesPage() {
 
   useEffect(() => {
     if (!user?.id) return;
-    favoritesApi.getAll(user.id)
+    favoritesApi.getAll()
       .then(res => {
         const ids = new Set<string>((res.data || []).map((fav: any) => fav.routeId));
         setFavoriteIds(ids);
@@ -93,11 +93,11 @@ export default function RoutesPage() {
     const isFav = favoriteIds.has(routeId);
     try {
       if (isFav) {
-        await favoritesApi.remove(user.id, routeId);
+        await favoritesApi.remove(routeId);
         setFavoriteIds(prev => { const next = new Set(prev); next.delete(routeId); return next; });
         toast.success('Маршрут удалён из избранного');
       } else {
-        await favoritesApi.add(user.id, routeId);
+        await favoritesApi.add(routeId);
         setFavoriteIds(prev => { const next = new Set(prev); next.add(routeId); return next; });
         toast.success('Маршрут добавлен в избранное');
       }

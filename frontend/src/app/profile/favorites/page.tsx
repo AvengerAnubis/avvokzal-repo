@@ -21,10 +21,9 @@ export default function ProfileFavoritesPage() {
       setLoading(false);
       return;
     }
-    const userId = JSON.parse(userStr).id;
 
     Promise.all([
-      favoritesApi.getAll(userId),
+      favoritesApi.getAll(),
       routesApi.getAll()
     ])
       .then(([favsRes, routesRes]) => {
@@ -68,8 +67,6 @@ export default function ProfileFavoritesPage() {
           <Column 
             header="Действия"
             body={(row) => {
-              const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-              const userId = userStr ? JSON.parse(userStr).id : null;
               return (
                 <div className="flex gap-2">
                   <Button 
@@ -82,19 +79,17 @@ export default function ProfileFavoritesPage() {
                     icon="pi pi-trash" 
                     className="p-button-text p-button-danger p-button-sm"
                     onClick={() => {
-                      if (userId) {
-                        confirm({
-                          message: 'Удалить из избранного?',
-                          accept: async () => {
-                            try {
-                              await favoritesApi.remove(userId, row.id);
-                              setFavoriteRoutes(prev => prev.filter(r => r.id !== row.id));
-                            } catch (e) {
-                              console.error(e);
-                            }
-                          },
-                        });
-                      }
+                      confirm({
+                        message: 'Удалить из избранного?',
+                        accept: async () => {
+                          try {
+                            await favoritesApi.remove(row.id);
+                            setFavoriteRoutes(prev => prev.filter(r => r.id !== row.id));
+                          } catch (e) {
+                            console.error(e);
+                          }
+                        },
+                      });
                     }}
                   />
                 </div>
