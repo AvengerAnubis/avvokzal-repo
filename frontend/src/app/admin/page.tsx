@@ -217,41 +217,21 @@ export default function AdminDashboardPage() {
 
         {/* Быстрые действия */}
         <Card title="Управление">
-          <div className="space-y-3">
-            <Link href="/admin/routes">
-              <Button
-                label="Маршруты"
-                icon="pi pi-map"
-                className="w-full justify-start"
-              />
+          <div className="flex flex-col gap-3">
+            <Link href="/admin/routes" className="block w-full">
+              <Button label="Маршруты" icon="pi pi-map" className="w-full justify-start" />
             </Link>
-            <Link href="/admin/users">
-              <Button
-                label="Пользователи"
-                icon="pi pi-users"
-                className="w-full justify-start"
-              />
+            <Link href="/admin/users" className="block w-full">
+              <Button label="Пользователи" icon="pi pi-users" className="w-full justify-start" />
             </Link>
-            <Link href="/admin/bookings">
-              <Button
-                label="Все бронирования"
-                icon="pi pi-ticket"
-                className="w-full justify-start"
-              />
+            <Link href="/admin/bookings" className="block w-full">
+              <Button label="Все бронирования" icon="pi pi-ticket" className="w-full justify-start" />
             </Link>
-            <Link href="/admin/chats">
-              <Button
-                label="История чатов"
-                icon="pi pi-comments"
-                className="w-full justify-start"
-              />
+            <Link href="/admin/chats" className="block w-full">
+              <Button label="История чатов" icon="pi pi-comments" className="w-full justify-start" />
             </Link>
-            <Link href="/schedule">
-              <Button
-                label="Расписание"
-                icon="pi pi-calendar"
-                className="w-full justify-start p-button-outlined"
-              />
+            <Link href="/schedule" className="block w-full">
+              <Button label="Расписание" icon="pi pi-calendar" className="w-full justify-start" />
             </Link>
           </div>
         </Card>
