@@ -217,22 +217,22 @@ export const usersApi = {
 // ============== Favorites ==============
 export const favoritesApi = {
   getAll: async (userId: string) => {
-    const response = await api.get(`/favorites/${userId}`);
+    const response = await api.get('/favorites', { params: { userId } });
     return response;
   },
 
   add: async (userId: string, routeId: string) => {
-    const response = await api.post('/favorites', { userId, routeId });
+    const response = await api.post(`/favorites/${routeId}`, null, { params: { userId } });
     return response;
   },
 
   remove: async (userId: string, routeId: string) => {
-    const response = await api.delete(`/favorites/${userId}/${routeId}`);
+    const response = await api.delete(`/favorites/${routeId}`, { params: { userId } });
     return response;
   },
 
   check: async (userId: string, routeId: string) => {
-    const response = await api.get(`/favorites/${userId}/${routeId}`);
+    const response = await api.get(`/favorites/check/${routeId}`, { params: { userId } });
     return response;
   },
 };
