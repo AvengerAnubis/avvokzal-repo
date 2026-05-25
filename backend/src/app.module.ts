@@ -13,6 +13,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { DelaysModule } from './modules/delays/delays.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
+import { BusesModule } from './modules/buses/buses.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { TicketsModule } from './modules/tickets/tickets.module';
     ChatModule,
     DelaysModule,
     TicketsModule,
+    BusesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

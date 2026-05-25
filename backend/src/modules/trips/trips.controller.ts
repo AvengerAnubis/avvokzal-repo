@@ -42,6 +42,7 @@ export class TripsController {
     departureTime: Date;
     arrivalTime: Date;
     busNumber?: string;
+    busId?: string;
     driverId?: string;
     totalSeats?: number;
   }) {

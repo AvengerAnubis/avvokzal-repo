@@ -42,7 +42,7 @@ describe('TripsService', () => {
 
       expect(mockPrisma.trip.findMany).toHaveBeenCalledWith({
         where: undefined,
-        include: { route: true, driver: { select: { id: true, firstName: true, lastName: true } } },
+        include: { route: true, bus: true, driver: { select: { id: true, firstName: true, lastName: true } } },
         orderBy: { departureTime: 'asc' },
       });
       expect(result).toEqual(mockTrips);
@@ -70,6 +70,7 @@ describe('TripsService', () => {
         where: { id: '1' },
         include: {
           route: true,
+          bus: true,
           driver: { select: { id: true, firstName: true, lastName: true } },
           bookings: { include: { user: true } },
         },
@@ -93,11 +94,15 @@ describe('TripsService', () => {
 
       expect(mockPrisma.trip.create).toHaveBeenCalledWith({
         data: {
-          ...createData,
+          routeId: createData.routeId,
+          departureTime: createData.departureTime,
+          arrivalTime: createData.arrivalTime,
+          busNumber: createData.busNumber,
+          busId: undefined,
           driverId: undefined,
           totalSeats: 40,
         },
-        include: { route: true },
+        include: { route: true, bus: true },
       });
       expect(result).toEqual(createdTrip);
     });
@@ -139,7 +144,7 @@ describe('TripsService', () => {
 
       expect(mockPrisma.trip.findMany).toHaveBeenCalledWith({
         where: { driverId: 'd1' },
-        include: { route: true },
+        include: { route: true, bus: true },
         orderBy: { departureTime: 'asc' },
       });
       expect(result).toEqual(mockTrips);
@@ -155,7 +160,7 @@ describe('TripsService', () => {
 
       expect(mockPrisma.trip.findMany).toHaveBeenCalledWith({
         where: { status: TripStatus.DELAYED },
-        include: { route: true, delays: true },
+        include: { route: true, bus: true, delays: true },
       });
       expect(result).toEqual(mockDelayed);
     });
@@ -192,7 +197,7 @@ describe('TripsService', () => {
             lte: expect.any(Date),
           },
         },
-        include: { route: true },
+        include: { route: true, bus: true },
         orderBy: { departureTime: 'asc' },
       });
     });

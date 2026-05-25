@@ -104,7 +104,7 @@ export const tripsApi = {
     return response;
   },
 
-  create: async (data: { routeId: string; departureTime: string; arrivalTime: string; busNumber?: string; driverId?: string }) => {
+  create: async (data: { routeId: string; departureTime: string; arrivalTime: string; busNumber?: string; busId?: string; driverId?: string }) => {
     const response = await api.post('/trips', data);
     return response;
   },
@@ -342,6 +342,34 @@ export const ticketsApi = {
 
   markAsUsed: async (id: string) => {
     const response = await api.put(`/tickets/${id}/used`);
+    return response;
+  },
+};
+
+// ============== Buses ==============
+export const busesApi = {
+  getAll: async () => {
+    const response = await api.get('/buses');
+    return response;
+  },
+
+  getById: async (id: string) => {
+    const response = await api.get(`/buses/${id}`);
+    return response;
+  },
+
+  create: async (data: { plateNumber: string; model?: string; totalSeats?: number }) => {
+    const response = await api.post('/buses', data);
+    return response;
+  },
+
+  update: async (id: string, data: { plateNumber?: string; model?: string; totalSeats?: number; isActive?: boolean }) => {
+    const response = await api.put(`/buses/${id}`, data);
+    return response;
+  },
+
+  delete: async (id: string) => {
+    const response = await api.delete(`/buses/${id}`);
     return response;
   },
 };

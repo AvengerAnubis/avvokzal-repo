@@ -8,7 +8,8 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
-import { tripsApi, delaysApi, routesApi, usersApi } from '@/lib/api';
+import { Checkbox } from 'primereact/checkbox';
+import { tripsApi, delaysApi, routesApi, usersApi, busesApi } from '@/lib/api';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/context';
 import { useRouter } from 'next/navigation';
@@ -22,6 +23,7 @@ export default function OperatorPage() {
   const [delays, setDelays] = useState<any[]>([]);
   const [routes, setRoutes] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<any[]>([]);
+  const [buses, setBuses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Trip dialog state
@@ -37,10 +39,12 @@ export default function OperatorPage() {
     routeId: '',
     departureTime: '',
     arrivalTime: '',
-    busNumber: '',
+    busId: '',
     driverId: '',
+    manualArrival: false,
   });
   const [creating, setCreating] = useState(false);
+  const [createErrors, setCreateErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isLoading) return;
@@ -54,16 +58,18 @@ export default function OperatorPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [tripsRes, delaysRes, routesRes, driversRes] = await Promise.all([
+      const [tripsRes, delaysRes, routesRes, driversRes, busesRes] = await Promise.all([
         tripsApi.getAll(),
         delaysApi.getAll(),
         routesApi.getAll(),
         usersApi.getDrivers(),
+        busesApi.getAll(),
       ]);
       setTrips(tripsRes.data || []);
       setDelays(delaysRes.data || []);
       setRoutes(routesRes.data || []);
       setDrivers(driversRes.data || []);
+      setBuses(busesRes.data || []);
     } catch (error) {
       console.error('Error loading operator data:', error);
     } finally {
@@ -125,25 +131,67 @@ export default function OperatorPage() {
   };
 
   const openCreateDialog = () => {
-    setCreateForm({ routeId: '', departureTime: '', arrivalTime: '', busNumber: '', driverId: '' });
+    setCreateForm({ routeId: '', departureTime: '', arrivalTime: '', busId: '', driverId: '', manualArrival: false });
+    setCreateErrors({});
     setShowCreateDialog(true);
   };
 
-  const handleCreateTrip = async () => {
-    if (!createForm.routeId || !createForm.departureTime || !createForm.arrivalTime) {
-      toast.warn('Заполните обязательные поля: маршрут, время отправления и прибытия');
-      return;
+  const handleDepartureChange = (departure: string) => {
+    setCreateForm(prev => ({ ...prev, departureTime: departure }));
+    if (!createForm.manualArrival && createForm.routeId) {
+      const route = routes.find((r: any) => r.id === createForm.routeId);
+      if (route && route.duration) {
+        const dep = new Date(departure);
+        if (!isNaN(dep.getTime())) {
+          const arr = new Date(dep.getTime() + route.duration * 60000);
+          setCreateForm(prev => ({ ...prev, departureTime: departure, arrivalTime: arr.toISOString().slice(0, 16) }));
+          return;
+        }
+      }
     }
+  };
+
+  const handleRouteChange = (routeId: string) => {
+    setCreateForm(prev => ({ ...prev, routeId }));
+    if (!createForm.manualArrival && createForm.departureTime) {
+      const route = routes.find((r: any) => r.id === routeId);
+      if (route && route.duration) {
+        const dep = new Date(createForm.departureTime);
+        if (!isNaN(dep.getTime())) {
+          const arr = new Date(dep.getTime() + route.duration * 60000);
+          setCreateForm(prev => ({ ...prev, routeId, arrivalTime: arr.toISOString().slice(0, 16) }));
+          return;
+        }
+      }
+    }
+    setCreateForm(prev => ({ ...prev, routeId }));
+  };
+
+  const validateCreateForm = () => {
+    const errs: Record<string, string> = {};
+    if (!createForm.routeId) errs.routeId = 'Выберите маршрут';
+    if (!createForm.departureTime) errs.departureTime = 'Укажите время отправления';
+    else if (new Date(createForm.departureTime) <= new Date()) errs.departureTime = 'Время отправления должно быть в будущем';
+    if (!createForm.arrivalTime) errs.arrivalTime = 'Укажите время прибытия';
+    else if (new Date(createForm.arrivalTime) <= new Date(createForm.departureTime)) errs.arrivalTime = 'Прибытие должно быть после отправления';
+    if (!createForm.busId) errs.busId = 'Выберите автобус';
+    setCreateErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleCreateTrip = async () => {
+    if (!validateCreateForm()) return;
     try {
       setCreating(true);
       await tripsApi.create({
         routeId: createForm.routeId,
         departureTime: new Date(createForm.departureTime).toISOString(),
         arrivalTime: new Date(createForm.arrivalTime).toISOString(),
-        busNumber: createForm.busNumber || undefined,
+        busId: createForm.busId,
         driverId: createForm.driverId || undefined,
       });
       setShowCreateDialog(false);
+      toast.success('Рейс создан');
       loadData();
     } catch (error) {
       console.error('Error creating trip:', error);
@@ -158,13 +206,10 @@ export default function OperatorPage() {
     value: r.id,
   }));
 
-  const driverOptions = [
-    { label: 'Без водителя', value: '' },
-    ...drivers.map((d: any) => ({
-      label: `${d.firstName} ${d.lastName}`,
-      value: d.id,
-    })),
-  ];
+  const driverOptions = drivers.map((d: any) => ({
+    label: `${d.firstName} ${d.lastName}`,
+    value: d.id,
+  }));
 
   return (
     <div className="space-y-6">
@@ -258,51 +303,74 @@ export default function OperatorPage() {
       <Dialog
         header="Создание рейса"
         visible={showCreateDialog}
-        onHide={() => setShowCreateDialog(false)}
-        style={{ width: '500px' }}
+        onHide={() => { setShowCreateDialog(false); setCreateErrors({}); }}
+        style={{ width: '520px' }}
       >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">Маршрут *</label>
             <Dropdown
-              className="w-full"
+              className={`w-full ${createErrors.routeId ? 'p-invalid' : ''}`}
               options={routeOptions}
               value={createForm.routeId}
-              onChange={(e) => setCreateForm({ ...createForm, routeId: e.value })}
+              onChange={(e) => handleRouteChange(e.value)}
               placeholder="Выберите маршрут"
               filter
             />
+            {createErrors.routeId && <small className="p-error">{createErrors.routeId}</small>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Время отправления *</label>
+              <label className="block text-sm font-medium mb-2">Отправление *</label>
               <InputText
                 type="datetime-local"
                 value={createForm.departureTime}
-                onChange={(e) => setCreateForm({ ...createForm, departureTime: e.target.value })}
-                className="w-full"
+                onChange={(e) => handleDepartureChange(e.target.value)}
+                className={`w-full ${createErrors.departureTime ? 'p-invalid' : ''}`}
               />
+              {createErrors.departureTime && <small className="p-error">{createErrors.departureTime}</small>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Время прибытия *</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Прибытие *</label>
+                <label className="flex items-center gap-1 text-xs cursor-pointer">
+                  <Checkbox
+                    inputId="manualArrival"
+                    checked={createForm.manualArrival}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, manualArrival: e.checked || false }))}
+                  />
+                  <span>Вручную</span>
+                </label>
+              </div>
               <InputText
                 type="datetime-local"
                 value={createForm.arrivalTime}
-                onChange={(e) => setCreateForm({ ...createForm, arrivalTime: e.target.value })}
-                className="w-full"
+                onChange={(e) => setCreateForm(prev => ({ ...prev, arrivalTime: e.target.value, manualArrival: true }))}
+                className={`w-full ${createErrors.arrivalTime ? 'p-invalid' : ''}`}
+                disabled={!createForm.manualArrival && !!createForm.routeId}
               />
+              {!createForm.manualArrival && createForm.routeId && (
+                <small className="text-muted-color">Рассчитывается автоматически из длительности маршрута</small>
+              )}
+              {createErrors.arrivalTime && <small className="p-error">{createErrors.arrivalTime}</small>}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Номер автобуса</label>
-            <InputText
-              value={createForm.busNumber}
-              onChange={(e) => setCreateForm({ ...createForm, busNumber: e.target.value })}
-              className="w-full"
-              placeholder="АА 1234 РФ"
+            <label className="block text-sm font-medium mb-2">Автобус *</label>
+            <Dropdown
+              className={`w-full ${createErrors.busId ? 'p-invalid' : ''}`}
+              options={buses.filter((b: any) => b.isActive).map((b: any) => ({
+                label: `${b.plateNumber} (${b.totalSeats} мест)${b.model ? ' - ' + b.model : ''}`,
+                value: b.id,
+              }))}
+              value={createForm.busId}
+              onChange={(e) => setCreateForm({ ...createForm, busId: e.value })}
+              placeholder="Выберите автобус"
+              filter
             />
+            {createErrors.busId && <small className="p-error">{createErrors.busId}</small>}
           </div>
 
           <div>
@@ -317,15 +385,18 @@ export default function OperatorPage() {
             />
           </div>
 
+          {createForm.busId && (
+            <div className="p-3 bg-primary-100 border-round text-sm">
+              Выбран автобус: {(() => {
+                const b = buses.find((x: any) => x.id === createForm.busId);
+                return b ? `${b.plateNumber} — ${b.totalSeats} мест` : '';
+              })()}
+            </div>
+          )}
+
           <div className="flex justify-end gap-2 mt-4">
-            <Button label="Отмена" className="p-button-text" onClick={() => setShowCreateDialog(false)} />
-            <Button
-              label="Создать рейс"
-              icon="pi pi-plus"
-              onClick={handleCreateTrip}
-              loading={creating}
-              disabled={!createForm.routeId || !createForm.departureTime || !createForm.arrivalTime}
-            />
+            <Button label="Отмена" className="p-button-text" onClick={() => { setShowCreateDialog(false); setCreateErrors({}); }} />
+            <Button label="Создать рейс" icon="pi pi-plus" onClick={handleCreateTrip} loading={creating} />
           </div>
         </div>
       </Dialog>

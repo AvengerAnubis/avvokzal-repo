@@ -14,6 +14,7 @@ export class TripsService {
       where: { routeId },
       include: {
         route: true,
+        bus: true,
         driver: {
           select: { id: true, firstName: true, lastName: true },
         },
@@ -28,6 +29,7 @@ export class TripsService {
       where: routeId ? { routeId } : undefined,
       include: {
         route: true,
+        bus: true,
         driver: {
           select: { id: true, firstName: true, lastName: true },
         },
@@ -42,6 +44,7 @@ export class TripsService {
       where: { id },
       include: {
         route: true,
+        bus: true,
         driver: {
           select: { id: true, firstName: true, lastName: true },
         },
@@ -57,20 +60,34 @@ export class TripsService {
     departureTime: Date;
     arrivalTime: Date;
     busNumber?: string;
+    busId?: string;
     driverId?: string;
     totalSeats?: number;
   }) {
     this.logger.log(`create (routeId: ${data.routeId})`);
+
+    let busNumber = data.busNumber;
+    let totalSeats = data.totalSeats ?? 40;
+
+    if (data.busId) {
+      const bus = await this.prisma.bus.findUnique({ where: { id: data.busId } });
+      if (bus) {
+        busNumber = bus.plateNumber;
+        totalSeats = bus.totalSeats;
+      }
+    }
+
     return this.prisma.trip.create({
       data: {
         routeId: data.routeId,
         departureTime: data.departureTime,
         arrivalTime: data.arrivalTime,
-        busNumber: data.busNumber,
+        busNumber,
+        busId: data.busId,
         driverId: data.driverId,
-        totalSeats: data.totalSeats ?? 40,
+        totalSeats,
       },
-      include: { route: true },
+      include: { route: true, bus: true },
     });
   }
 
@@ -79,11 +96,21 @@ export class TripsService {
     arrivalTime: Date;
     status: TripStatus;
     busNumber: string;
+    busId: string;
     driverId: string;
     operatorId: string;
     totalSeats: number;
   }>) {
     this.logger.log(`update (id: ${id})`);
+
+    if (data.busId) {
+      const bus = await this.prisma.bus.findUnique({ where: { id: data.busId } });
+      if (bus) {
+        data.busNumber = bus.plateNumber;
+        data.totalSeats = bus.totalSeats;
+      }
+    }
+
     return this.prisma.trip.update({
       where: { id },
       data,
@@ -101,7 +128,7 @@ export class TripsService {
     this.logger.log(`getByDriver (driverId: ${driverId})`);
     return this.prisma.trip.findMany({
       where: { driverId },
-      include: { route: true },
+      include: { route: true, bus: true },
       orderBy: { departureTime: 'asc' },
     });
   }
@@ -110,7 +137,7 @@ export class TripsService {
     this.logger.log('getDelayed');
     return this.prisma.trip.findMany({
       where: { status: TripStatus.DELAYED },
-      include: { route: true, delays: true },
+      include: { route: true, bus: true, delays: true },
     });
   }
 
@@ -141,7 +168,7 @@ export class TripsService {
           lte: endOfDay,
         },
       },
-      include: { route: true },
+      include: { route: true, bus: true },
       orderBy: { departureTime: 'asc' },
     });
   }

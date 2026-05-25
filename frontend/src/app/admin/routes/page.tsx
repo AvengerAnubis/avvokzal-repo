@@ -5,6 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { Tag } from 'primereact/tag';
 import { routesApi } from '@/lib/api';
@@ -35,8 +36,9 @@ export default function AdminRoutesPage() {
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
-  // Form state
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Form state (duration as hours+minutes)
   const [formData, setFormData] = useState<Route>({
     name: '',
     origin: '',
@@ -46,6 +48,8 @@ export default function AdminRoutesPage() {
     price: 0,
     isActive: true,
   });
+  const [durationHours, setDurationHours] = useState(0);
+  const [durationMinutes, setDurationMinutes] = useState(0);
 
   useEffect(() => {
     if (isLoading) return; // Wait for auth to finish loading
@@ -70,9 +74,12 @@ export default function AdminRoutesPage() {
   };
 
   const openDialog = (route?: Route) => {
+    setErrors({});
     if (route) {
       setSelectedRoute(route);
       setFormData(route);
+      setDurationHours(Math.floor((route.duration || 0) / 60));
+      setDurationMinutes((route.duration || 0) % 60);
     } else {
       setSelectedRoute(null);
       setFormData({
@@ -84,30 +91,46 @@ export default function AdminRoutesPage() {
         price: 0,
         isActive: true,
       });
+      setDurationHours(0);
+      setDurationMinutes(0);
     }
     setShowDialog(true);
   };
 
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!formData.name.trim()) errs.name = 'Название обязательно';
+    if (!formData.origin.trim()) errs.origin = 'Укажите пункт отправления';
+    if (!formData.destination.trim()) errs.destination = 'Укажите пункт назначения';
+    if (durationHours === 0 && durationMinutes === 0) errs.duration = 'Укажите время в пути';
+    if (durationHours > 48) errs.duration = 'Максимум 48 часов';
+    if (durationMinutes > 59) errs.duration = 'Минуты должны быть от 0 до 59';
+    if (!formData.price || formData.price <= 0) errs.price = 'Укажите цену';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSave = async () => {
+    if (!validate()) return;
     try {
       setSaving(true);
-      
+
       const routeData = {
         name: formData.name,
         origin: formData.origin,
         destination: formData.destination,
         distance: Number(formData.distance),
-        duration: Number(formData.duration),
+        duration: durationHours * 60 + durationMinutes,
         price: Number(formData.price),
         isActive: formData.isActive,
       };
 
       if (selectedRoute?.id) {
-        // Update existing
         await routesApi.update(selectedRoute.id, routeData);
+        toast.success('Маршрут обновлён');
       } else {
-        // Create new
         await routesApi.create(routeData);
+        toast.success('Маршрут создан');
       }
 
       setShowDialog(false);
@@ -144,6 +167,13 @@ export default function AdminRoutesPage() {
     );
   };
 
+  const durationTemplate = (rowData: Route) => {
+    if (!rowData.duration) return '—';
+    const h = Math.floor(rowData.duration / 60);
+    const m = rowData.duration % 60;
+    return `${h} ч ${m} мин`;
+  };
+
   const statusTemplate = (rowData: Route) => {
     return (
       <Tag severity={rowData.isActive ? 'success' : 'danger'} value={rowData.isActive ? 'Активный' : 'Неактивный'} />
@@ -169,7 +199,7 @@ export default function AdminRoutesPage() {
         >
           <Column header="Маршрут" body={nameTemplate} sortable />
           <Column header="Расстояние (км)" field="distance" sortable />
-          <Column header="Время (мин)" field="duration" sortable />
+          <Column header="Время в пути" body={durationTemplate} sortable />
           <Column header="Цена (₽)" body={(row) => row.price ? `${row.price} ₽` : '-'} sortable />
           <Column header="Статус" body={statusTemplate} sortable />
           <Column 
@@ -195,37 +225,40 @@ export default function AdminRoutesPage() {
       <Dialog 
         header={selectedRoute ? 'Редактирование маршрута' : 'Добавление маршрута'} 
         visible={showDialog} 
-        onHide={() => setShowDialog(false)}
-        style={{ width: '500px' }}
+        onHide={() => { setShowDialog(false); setErrors({}); }}
+        style={{ width: '550px' }}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Название</label>
+            <label className="block text-sm font-medium mb-2">Название *</label>
             <InputText 
-              className="w-full" 
+              className={`w-full ${errors.name ? 'p-invalid' : ''}`} 
               value={formData.name} 
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Москва - Санкт-Петербург"
             />
+            {errors.name && <small className="p-error">{errors.name}</small>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Откуда</label>
+              <label className="block text-sm font-medium mb-2">Откуда *</label>
               <InputText 
-                className="w-full" 
+                className={`w-full ${errors.origin ? 'p-invalid' : ''}`} 
                 value={formData.origin} 
                 onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
                 placeholder="Москва"
               />
+              {errors.origin && <small className="p-error">{errors.origin}</small>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Куда</label>
+              <label className="block text-sm font-medium mb-2">Куда *</label>
               <InputText 
-                className="w-full" 
+                className={`w-full ${errors.destination ? 'p-invalid' : ''}`} 
                 value={formData.destination} 
                 onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                 placeholder="Санкт-Петербург"
               />
+              {errors.destination && <small className="p-error">{errors.destination}</small>}
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
@@ -239,32 +272,51 @@ export default function AdminRoutesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Время (мин)</label>
-              <InputText 
-                className="w-full" 
-                value={String(formData.duration)} 
-                onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })}
-                placeholder="720"
-              />
+              <label className="block text-sm font-medium mb-2">Время в пути *</label>
+              <div className="flex gap-2 items-center">
+                <InputNumber
+                  value={durationHours}
+                  onValueChange={(e) => setDurationHours(e.value || 0)}
+                  min={0}
+                  max={48}
+                  showButtons
+                  className={`w-24 ${errors.duration ? 'p-invalid' : ''}`}
+                />
+                <span>ч</span>
+                <InputNumber
+                  value={durationMinutes}
+                  onValueChange={(e) => setDurationMinutes(e.value || 0)}
+                  min={0}
+                  max={59}
+                  showButtons
+                  className="w-24"
+                />
+                <span>мин</span>
+              </div>
+              {errors.duration && <small className="p-error">{errors.duration}</small>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Цена (₽)</label>
-              <InputText 
-                className="w-full" 
-                value={String(formData.price)} 
-                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+              <label className="block text-sm font-medium mb-2">Цена (₽) *</label>
+              <InputNumber
+                className={`w-full ${errors.price ? 'p-invalid' : ''}`}
+                value={formData.price}
+                onValueChange={(e) => setFormData({ ...formData, price: e.value || 0 })}
+                min={0}
                 placeholder="2500"
+                mode="currency"
+                currency="RUB"
+                locale="ru-RU"
               />
+              {errors.price && <small className="p-error">{errors.price}</small>}
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button label="Отмена" className="p-button-text" onClick={() => setShowDialog(false)} />
+            <Button label="Отмена" className="p-button-text" onClick={() => { setShowDialog(false); setErrors({}); }} />
             <Button 
               label="Сохранить" 
               icon="pi pi-check" 
               onClick={handleSave}
               loading={saving}
-              disabled={!formData.name || !formData.origin || !formData.destination}
             />
           </div>
         </div>
