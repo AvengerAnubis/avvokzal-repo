@@ -12,9 +12,10 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Steps } from 'primereact/steps';
 import { Tag } from 'primereact/tag';
-import { routesApi, tripsApi, bookingsApi } from '@/lib/api';
+import { routesApi, tripsApi, bookingsApi, favoritesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth/context';
 import { useToast } from '@/lib/toast/context';
+import { useConfirm } from '@/lib/confirm/context';
 import SeatMap from '@/components/SeatMap';
 
 export default function RoutesPage() {
@@ -42,6 +43,7 @@ export default function RoutesPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [createdBooking, setCreatedBooking] = useState<any>(null);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     routesApi.getAll()
@@ -49,6 +51,16 @@ export default function RoutesPage() {
       .catch(() => setRoutes([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    favoritesApi.getAll(user.id)
+      .then(res => {
+        const ids = new Set<string>((res.data || []).map((fav: any) => fav.routeId));
+        setFavoriteIds(ids);
+      })
+      .catch(() => {});
+  }, [user?.id]);
 
   const getStatusSeverity = (status: string): 'success' | 'warning' | 'info' | 'danger' | 'secondary' => {
     const map: Record<string, 'success' | 'warning' | 'info' | 'danger' | 'secondary'> = {
@@ -70,6 +82,28 @@ export default function RoutesPage() {
       CANCELLED: 'Отменён',
     };
     return map[status] || status;
+  };
+
+  const toggleFavorite = async (routeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user?.id) {
+      toast.info('Войдите в аккаунт, чтобы добавлять в избранное');
+      return;
+    }
+    const isFav = favoriteIds.has(routeId);
+    try {
+      if (isFav) {
+        await favoritesApi.remove(user.id, routeId);
+        setFavoriteIds(prev => { const next = new Set(prev); next.delete(routeId); return next; });
+        toast.success('Маршрут удалён из избранного');
+      } else {
+        await favoritesApi.add(user.id, routeId);
+        setFavoriteIds(prev => { const next = new Set(prev); next.add(routeId); return next; });
+        toast.success('Маршрут добавлен в избранное');
+      }
+    } catch {
+      toast.error('Ошибка при изменении избранного');
+    }
   };
 
   const handleBookClick = async (route: any) => {
@@ -187,13 +221,25 @@ export default function RoutesPage() {
     if (!rowData.isActive) {
       return <Tag severity="secondary" value="Недоступен" />;
     }
+    const isFav = favoriteIds.has(rowData.id);
     return (
-      <Button
-        label="Забронировать"
-        icon="pi pi-ticket"
-        size="small"
-        onClick={() => handleBookClick(rowData)}
-      />
+      <div className="flex gap-2">
+        <Button
+          label="Забронировать"
+          icon="pi pi-ticket"
+          size="small"
+          onClick={() => handleBookClick(rowData)}
+        />
+        <Button
+          icon={isFav ? "pi pi-heart-fill" : "pi pi-heart"}
+          severity={isFav ? "danger" : "secondary"}
+          text
+          size="small"
+          tooltip={isFav ? "Удалить из избранного" : "Добавить в избранное"}
+          tooltipOptions={{ position: 'top' }}
+          onClick={(e) => toggleFavorite(rowData.id, e)}
+        />
+      </div>
     );
   };
 

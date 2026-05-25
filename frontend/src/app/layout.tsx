@@ -3,11 +3,13 @@ import Navbar from '@/components/Navbar';
 import { AuthProvider } from '@/lib/auth/context';
 import { ToastProvider } from '@/lib/toast/context';
 import { ConfirmProvider } from '@/lib/confirm/context';
+import LocaleProvider from '@/components/LocaleProvider';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <PrimeReactProvider>
+      <LocaleProvider />
       <html lang="ru">
         <head>
           <title>АВ-Вокзал</title>
