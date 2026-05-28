@@ -16,6 +16,7 @@ export class BookingsService {
         trip: { include: { route: true } },
         user: { select: { id: true, firstName: true, lastName: true, email: true } },
         payment: true,
+        bookingSeats: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -30,6 +31,7 @@ export class BookingsService {
         user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true } },
         payment: true,
         tickets: true,
+        bookingSeats: true,
       },
     });
   }
@@ -66,12 +68,13 @@ export class BookingsService {
     }
 
     // Check which seats are already booked
-    const bookedSeatNumbers = new Set<number>();
-    for (const booking of trip.bookings) {
-      for (const sn of booking.seatNumbers) {
-        bookedSeatNumbers.add(sn);
-      }
-    }
+    const bookingIds = trip.bookings.map(b => b.id);
+    const bookedSeats = bookingIds.length > 0
+      ? await this.prisma.bookingSeat.findMany({
+          where: { bookingId: { in: bookingIds } },
+        })
+      : [];
+    const bookedSeatNumbers = new Set(bookedSeats.map(bs => bs.seatNumber));
 
     const alreadyBooked = seatNumbers.filter(sn => bookedSeatNumbers.has(sn));
     if (alreadyBooked.length > 0) {
@@ -81,18 +84,22 @@ export class BookingsService {
     const routePrice = Number(trip.route.price);
     const totalPrice = routePrice * seatNumbers.length;
 
-    // Create booking with tickets
+    // Create booking with tickets and booking seats
     const booking = await this.prisma.booking.create({
       data: {
         userId: data.userId,
         tripId: data.tripId,
         seats: seatNumbers.length,
-        seatNumbers,
         totalPrice,
         passengerName: data.passengerName,
         passengerPhone: data.passengerPhone,
         passengerEmail: data.passengerEmail,
         status: BookingStatus.PENDING,
+        bookingSeats: {
+          create: seatNumbers.map((seatNumber) => ({
+            seatNumber,
+          })),
+        },
         tickets: {
           create: seatNumbers.map((seatNumber) => ({
             tripId: data.tripId,
@@ -104,6 +111,7 @@ export class BookingsService {
       include: {
         trip: { include: { route: true } },
         tickets: true,
+        bookingSeats: true,
       },
     });
 
@@ -112,7 +120,6 @@ export class BookingsService {
 
   async update(id: string, data: Partial<{
     seats: number;
-    seatNumbers: number[];
     status: BookingStatus;
     passengerName: string;
     passengerPhone: string;
@@ -140,6 +147,7 @@ export class BookingsService {
         trip: { include: { route: true } },
         payment: true,
         tickets: true,
+        bookingSeats: true,
       },
       orderBy: { createdAt: 'desc' },
     });

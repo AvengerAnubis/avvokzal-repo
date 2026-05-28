@@ -15,6 +15,9 @@ describe('BookingsService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    bookingSeat: {
+      findMany: jest.fn(),
+    },
     trip: {
       findUnique: jest.fn(),
     },
@@ -50,6 +53,7 @@ describe('BookingsService', () => {
           trip: { include: { route: true } },
           user: { select: { id: true, firstName: true, lastName: true, email: true } },
           payment: true,
+          bookingSeats: true,
         },
         orderBy: { createdAt: 'desc' },
       });
@@ -81,6 +85,7 @@ describe('BookingsService', () => {
           user: { select: { id: true, firstName: true, lastName: true, email: true, phone: true } },
           payment: true,
           tickets: true,
+          bookingSeats: true,
         },
       });
       expect(result).toEqual(mockBooking);
@@ -109,12 +114,18 @@ describe('BookingsService', () => {
         route: { price: 1500 },
         bookings: [],
       });
+      mockPrisma.bookingSeat.findMany.mockResolvedValue([]);
       const createdBooking = {
         id: 'b1',
-        ...createData,
+        userId: 'u1',
+        tripId: 't1',
         seats: 2,
         totalPrice: 3000,
+        passengerName: 'Test User',
+        passengerPhone: '+79000000000',
         status: BookingStatus.PENDING,
+        tickets: [],
+        bookingSeats: [],
       };
       mockPrisma.booking.create.mockResolvedValue(createdBooking);
 
@@ -125,11 +136,16 @@ describe('BookingsService', () => {
           userId: 'u1',
           tripId: 't1',
           seats: 2,
-          seatNumbers: [1, 2],
           totalPrice: 3000,
           passengerName: 'Test User',
           passengerPhone: '+79000000000',
           status: BookingStatus.PENDING,
+          bookingSeats: {
+            create: [
+              { seatNumber: 1 },
+              { seatNumber: 2 },
+            ],
+          },
           tickets: {
             create: [
               { tripId: 't1', seatNumber: 1, qrCode: expect.any(String) },
@@ -137,7 +153,7 @@ describe('BookingsService', () => {
             ],
           },
         },
-        include: { trip: { include: { route: true } }, tickets: true },
+        include: { trip: { include: { route: true } }, tickets: true, bookingSeats: true },
       });
       expect(result).toEqual(createdBooking);
     });
@@ -182,6 +198,7 @@ describe('BookingsService', () => {
           trip: { include: { route: true } },
           payment: true,
           tickets: true,
+          bookingSeats: true,
         },
         orderBy: { createdAt: 'desc' },
       });

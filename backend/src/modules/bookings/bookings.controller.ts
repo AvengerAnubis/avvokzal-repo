@@ -37,7 +37,6 @@ export class BookingsController {
     @Param('id') id: string,
     @Body() body: Partial<{
       seats: number;
-      seatNumbers: number[];
       status: any;
       passengerName: string;
       passengerPhone: string;

@@ -290,7 +290,7 @@ export default function RoutesPage() {
             <i className="pi pi-check-circle text-5xl text-green-500"></i>
             <p className="text-xl font-bold">Бронирование создано!</p>
             <p className="text-sm text-muted-color">
-              Выбраны места: {createdBooking.seatNumbers?.join(', ') || createdBooking.seats}
+              Выбраны места: {createdBooking.bookingSeats?.map((s: any) => s.seatNumber).join(', ') || createdBooking.seats}
             </p>
             <p className="text-muted-color text-sm">Для завершения необходимо оплатить билет.</p>
             <div className="flex justify-center gap-3 mt-4">

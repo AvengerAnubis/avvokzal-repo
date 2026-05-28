@@ -15,6 +15,12 @@ describe('TripsService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    booking: {
+      findMany: jest.fn(),
+    },
+    bookingSeat: {
+      findMany: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -216,11 +222,17 @@ describe('TripsService', () => {
       mockPrisma.trip.findUnique.mockResolvedValue({
         id: '1',
         totalSeats: 40,
-        bookings: [
-          { id: 'b1', seatNumbers: [1, 2] },
-          { id: 'b2', seatNumbers: [3, 4, 5] },
-        ],
       });
+      mockPrisma.booking.findMany.mockResolvedValue([
+        {
+          id: 'b1',
+          bookingSeats: [{ id: 'bs1', seatNumber: 1 }, { id: 'bs2', seatNumber: 2 }],
+        },
+        {
+          id: 'b2',
+          bookingSeats: [{ id: 'bs3', seatNumber: 3 }, { id: 'bs4', seatNumber: 4 }, { id: 'bs5', seatNumber: 5 }],
+        },
+      ]);
 
       const result = await service.getAvailableSeats('1');
 
@@ -234,14 +246,16 @@ describe('TripsService', () => {
     });
 
     it('should not return negative available seats', async () => {
+      const b1Seats = Array.from({ length: 25 }, (_, i) => ({ id: `bs${i + 1}`, seatNumber: i + 1 }));
+      const b2Seats = Array.from({ length: 15 }, (_, i) => ({ id: `bs${i + 26}`, seatNumber: i + 26 }));
       mockPrisma.trip.findUnique.mockResolvedValue({
         id: '1',
         totalSeats: 40,
-        bookings: [
-          { id: 'b1', seatNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] },
-          { id: 'b2', seatNumbers: [26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40] },
-        ],
       });
+      mockPrisma.booking.findMany.mockResolvedValue([
+        { id: 'b1', bookingSeats: b1Seats },
+        { id: 'b2', bookingSeats: b2Seats },
+      ]);
 
       const result = await service.getAvailableSeats('1');
 

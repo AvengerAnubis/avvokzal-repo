@@ -177,22 +177,23 @@ export class TripsService {
     this.logger.log(`getAvailableSeats (tripId: ${tripId})`);
     const trip = await this.prisma.trip.findUnique({
       where: { id: tripId },
-      include: {
-        bookings: {
-          where: {
-            status: { in: ['CONFIRMED', 'PENDING'] },
-          },
-        },
-      },
     });
 
     if (!trip) return { totalSeats: 40, bookedSeats: 0, availableSeats: 40, seatMap: [] };
 
+    const bookings = await this.prisma.booking.findMany({
+      where: {
+        tripId,
+        status: { in: ['CONFIRMED', 'PENDING'] },
+      },
+      include: { bookingSeats: true },
+    });
+
     const totalSeats = trip.totalSeats;
     const bookedSeatNumbers = new Set<number>();
-    for (const booking of trip.bookings) {
-      for (const sn of booking.seatNumbers) {
-        bookedSeatNumbers.add(sn);
+    for (const booking of bookings) {
+      for (const bs of booking.bookingSeats) {
+        bookedSeatNumbers.add(bs.seatNumber);
       }
     }
 

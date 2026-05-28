@@ -395,7 +395,7 @@ export default function BookingPage() {
           <i className="pi pi-check-circle text-5xl text-green-500"></i>
           <p className="text-lg">Бронирование успешно создано!</p>
           <p className="text-sm text-muted-color">
-            Места: {booking?.seatNumbers?.join(', ') || ''}
+            Места: {booking?.bookingSeats?.map((s: any) => s.seatNumber).join(', ') || ''}
           </p>
           <p className="text-sm text-muted-color">
             Для завершения бронирования необходимо оплатить билет.
