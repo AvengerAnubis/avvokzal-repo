@@ -1,12 +1,39 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TripStatus } from '@prisma/client';
 
 @Injectable()
-export class TripsService {
+export class TripsService implements OnModuleInit {
   private readonly logger = new Logger(TripsService.name);
 
   constructor(private prisma: PrismaService) {}
+
+  onModuleInit() {
+    this.updateTripStatuses();
+    setInterval(() => this.updateTripStatuses(), 60_000);
+  }
+
+  private async updateTripStatuses() {
+    try {
+      const now = new Date();
+
+      const started = await this.prisma.trip.updateMany({
+        where: { status: 'SCHEDULED', departureTime: { lte: now } },
+        data: { status: 'IN_PROGRESS' },
+      });
+      if (started.count > 0)
+        this.logger.log(`Auto-updated ${started.count} trips to IN_PROGRESS`);
+
+      const completed = await this.prisma.trip.updateMany({
+        where: { status: 'IN_PROGRESS', arrivalTime: { lte: now } },
+        data: { status: 'COMPLETED' },
+      });
+      if (completed.count > 0)
+        this.logger.log(`Auto-updated ${completed.count} trips to COMPLETED`);
+    } catch (e) {
+      this.logger.error('Failed to auto-update trip statuses', e);
+    }
+  }
 
   async findByRoute(routeId: string) {
     this.logger.log(`findByRoute (routeId: ${routeId})`);
@@ -189,7 +216,7 @@ export class TripsService {
       include: { bookingSeats: true },
     });
 
-    const totalSeats = trip.totalSeats;
+    const totalSeats = trip.totalSeats || 40;
     const bookedSeatNumbers = new Set<number>();
     for (const booking of bookings) {
       for (const bs of booking.bookingSeats) {

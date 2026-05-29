@@ -57,7 +57,7 @@ export class BookingsService {
       throw new NotFoundException('Trip not found');
     }
 
-    const totalSeats = trip.totalSeats;
+    const totalSeats = trip.totalSeats || 40;
 
     // Validate seat numbers
     const seatNumbers = [...new Set(data.seatNumbers)];

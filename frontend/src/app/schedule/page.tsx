@@ -13,21 +13,29 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([tripsApi.getAll(), routesApi.getAll()])
-      .then(([tripsRes, routesRes]) => {
-        setTrips(tripsRes.data || []);
-        setRoutes(routesRes.data || []);
-      })
-      .catch(() => {
-        setTrips([]);
-        setRoutes([]);
-      })
-      .finally(() => setLoading(false));
+    loadData();
+    const interval = setInterval(loadData, 30_000);
+    return () => clearInterval(interval);
   }, []);
+
+  const loadData = async () => {
+    try {
+      const [tripsRes, routesRes] = await Promise.all([tripsApi.getAll(), routesApi.getAll()]);
+      setTrips(tripsRes.data || []);
+      setRoutes(routesRes.data || []);
+    } catch {
+      setTrips([]);
+      setRoutes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusSeverity = (status: string) => {
     switch (status) {
       case 'SCHEDULED': return 'success';
       case 'DELAYED': return 'warning';
+      case 'IN_PROGRESS': return 'info';
       case 'COMPLETED': return 'info';
       case 'CANCELLED': return 'danger';
       default: return 'info';
@@ -38,6 +46,7 @@ export default function SchedulePage() {
     switch (status) {
       case 'SCHEDULED': return 'В ожидании';
       case 'DELAYED': return 'Задержка';
+      case 'IN_PROGRESS': return 'В пути';
       case 'COMPLETED': return 'Завершён';
       case 'CANCELLED': return 'Отменён';
       default: return status;
