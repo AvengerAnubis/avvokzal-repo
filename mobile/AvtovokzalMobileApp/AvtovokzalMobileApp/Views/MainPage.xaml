@@ -23,6 +23,31 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Auth Status -->
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 10" Padding="12"
+                Stroke="{StaticResource Slate200}" StrokeThickness="1"
+                IsVisible="{Binding IsAuthenticated}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="{Binding UserGreeting}" FontSize="15" FontAttributes="Bold"
+                           TextColor="{StaticResource Slate900}" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="Профиль" Command="{Binding GoToProfileCommand}"
+                            BackgroundColor="{StaticResource Primary}" TextColor="White"
+                            FontSize="13" HeightRequest="36" Padding="12,4" />
+                </Grid>
+            </Border>
+
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 10" Padding="12"
+                Stroke="{StaticResource Slate200}" StrokeThickness="1"
+                IsVisible="{Binding IsAuthenticated, Converter={StaticResource InverseBoolConverter}}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Войдите для бронирования" FontSize="14"
+                           TextColor="{StaticResource Slate500}" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Text="Войти" Command="{Binding GoToLoginCommand}"
+                            BackgroundColor="{StaticResource Primary}" TextColor="White"
+                            FontSize="13" HeightRequest="36" Padding="12,4" />
+                </Grid>
+            </Border>
+
             <Border BackgroundColor="{StaticResource Tertiary}" StrokeShape="RoundRectangle 12" Padding="20"
                 Stroke="Transparent" StrokeThickness="0">
                 <VerticalStackLayout Spacing="12">

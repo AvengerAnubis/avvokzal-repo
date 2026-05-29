@@ -43,6 +43,8 @@ public partial class ProfileViewModel : BaseViewModel
     [ObservableProperty]
     private bool _isAuthenticated;
 
+    private bool _isLoadingProfile;
+
     public ProfileViewModel(IAuthService authService, IBookingService bookingService,
         ITicketService ticketService, IFavoriteService favoriteService, IUserService userService,
         IOfflineStorageService offlineStorage, IApiHealthService healthService)
@@ -73,17 +75,21 @@ public partial class ProfileViewModel : BaseViewModel
 
     private void OnAuthStateChanged()
     {
-        IsAuthenticated = _authService.IsAuthenticated;
-        if (IsAuthenticated)
-            _ = LoadProfileAsync();
-        else
-            ClearProfile();
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            IsAuthenticated = _authService.IsAuthenticated;
+            if (IsAuthenticated)
+                _ = LoadProfileAsync();
+            else
+                ClearProfile();
+        });
     }
 
     [RelayCommand]
     private async Task LoadProfileAsync()
     {
-        if (!_authService.IsAuthenticated) return;
+        if (!_authService.IsAuthenticated || _isLoadingProfile) return;
+        _isLoadingProfile = true;
 
         IsBusy = true;
         ErrorMessage = null;
@@ -126,6 +132,7 @@ public partial class ProfileViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+            _isLoadingProfile = false;
         }
     }
 
@@ -223,7 +230,8 @@ public partial class ProfileViewModel : BaseViewModel
         IsServerOnline = _healthService.IsServerOnline;
         ConnectionWarning = IsServerOnline ? null : "Сервер недоступен. Показаны сохранённые данные.";
 
-        if (_authService.IsAuthenticated)
+        IsAuthenticated = _authService.IsAuthenticated;
+        if (IsAuthenticated)
             _ = LoadProfileAsync();
         else
             ClearProfile();

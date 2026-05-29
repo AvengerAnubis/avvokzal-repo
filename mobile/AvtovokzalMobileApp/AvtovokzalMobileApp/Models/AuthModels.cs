@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace AvtovokzalMobileApp.Models;
 
@@ -20,6 +21,7 @@ public class RegisterRequest
 
 public class AuthResponse
 {
+    [JsonPropertyName("access_token")]
     public string AccessToken { get; set; } = string.Empty;
     public UserInfo? User { get; set; }
 }
@@ -58,6 +60,7 @@ public class TripModel
     public string? BusNumber { get; set; }
     public string? DriverId { get; set; }
     public string? OperatorId { get; set; }
+    public int TotalSeats { get; set; } = 40;
     public RouteModel? Route { get; set; }
 }
 

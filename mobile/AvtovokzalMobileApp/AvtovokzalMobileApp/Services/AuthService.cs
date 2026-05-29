@@ -9,6 +9,27 @@ public class AuthService : IAuthService
     public AuthService(IApiService apiService)
     {
         _apiService = apiService;
+        _ = RestoreTokenAsync();
+    }
+
+    private async Task RestoreTokenAsync()
+    {
+        try
+        {
+            var saved = await SecureStorage.Default.GetAsync("auth_token");
+            if (!string.IsNullOrEmpty(saved))
+            {
+                Token = saved;
+                _apiService.SetAuthToken(Token);
+                var user = await _apiService.GetAsync<UserInfo>("/api/auth/profile");
+                if (user != null)
+                    CurrentUser = user;
+                AuthStateChanged?.Invoke();
+            }
+        }
+        catch
+        {
+        }
     }
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(Token);
@@ -65,7 +86,6 @@ public class AuthService : IAuthService
         if (user != null)
         {
             CurrentUser = user;
-            AuthStateChanged?.Invoke();
         }
         return user;
     }

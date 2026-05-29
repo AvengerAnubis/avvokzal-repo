@@ -23,6 +23,12 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private DateTime _selectedDate = DateTime.Today;
 
+    [ObservableProperty]
+    private bool _isAuthenticated;
+
+    [ObservableProperty]
+    private string? _userGreeting;
+
     public MainViewModel(IRouteService routeService, IAuthService authService, IApiHealthService healthService)
     {
         _routeService = routeService;
@@ -34,10 +40,28 @@ public partial class MainViewModel : BaseViewModel
         if (!IsServerOnline)
             ConnectionWarning = "Сервер недоступен. Некоторые функции могут быть ограничены.";
 
+        IsAuthenticated = _authService.IsAuthenticated;
+        UpdateUserGreeting();
+
         _healthService.ConnectivityChanged += OnConnectivityChanged;
+        _authService.AuthStateChanged += OnAuthStateChanged;
     }
 
-    public bool IsAuthenticated => _authService.IsAuthenticated;
+    private void OnAuthStateChanged()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            IsAuthenticated = _authService.IsAuthenticated;
+            UpdateUserGreeting();
+        });
+    }
+
+    private void UpdateUserGreeting()
+    {
+        UserGreeting = _authService.CurrentUser != null
+            ? $"Здравствуйте, {_authService.CurrentUser.FirstName}"
+            : "Здравствуйте!";
+    }
 
     private void OnConnectivityChanged()
     {
@@ -136,6 +160,6 @@ public partial class MainViewModel : BaseViewModel
             await Shell.Current.GoToAsync("login");
             return;
         }
-        await Shell.Current.GoToAsync("profile");
+        await Shell.Current.GoToAsync("//profile");
     }
 }

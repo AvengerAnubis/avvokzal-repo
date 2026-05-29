@@ -13,6 +13,14 @@ public partial class BookingViewModel : BaseViewModel
     private readonly IBookingService _bookingService;
     private readonly IAuthService _authService;
 
+    public BookingViewModel(IRouteService routeService, IBookingService bookingService, IAuthService authService)
+    {
+        _routeService = routeService;
+        _bookingService = bookingService;
+        _authService = authService;
+        Title = "Бронирование";
+    }
+
     [ObservableProperty]
     private string _routeId = string.Empty;
 
@@ -112,11 +120,17 @@ public partial class BookingViewModel : BaseViewModel
         try
         {
             var seats = await _routeService.GetSeatsAsync(SelectedTrip.Id);
+            var seatMap = seats != null ? null : await _routeService.GetSeatMapAsync(SelectedTrip.Id);
             if (seats != null)
                 AvailableSeats = seats.AvailableSeats;
+            else if (seatMap != null)
+                AvailableSeats = seatMap.AvailableSeats;
+            else
+                AvailableSeats = SelectedTrip.TotalSeats;
         }
         catch
         {
+            AvailableSeats = SelectedTrip.TotalSeats;
         }
     }
 
@@ -126,7 +140,7 @@ public partial class BookingViewModel : BaseViewModel
         try
         {
             var seatMap = await _routeService.GetSeatMapAsync(SelectedTrip.Id);
-            if (seatMap?.SeatMap != null)
+            if (seatMap?.SeatMap != null && seatMap.SeatMap.Count > 0)
             {
                 SeatItems.Clear();
                 foreach (var s in seatMap.SeatMap)
@@ -138,11 +152,26 @@ public partial class BookingViewModel : BaseViewModel
                         IsSelected = false
                     });
                 }
+                return;
             }
         }
         catch
         {
-            ErrorMessage = "Не удалось загрузить схему мест";
+        }
+
+        var total = SelectedTrip.TotalSeats;
+        if (total > 0)
+        {
+            SeatItems.Clear();
+            for (int i = 1; i <= total; i++)
+            {
+                SeatItems.Add(new SeatItemModel
+                {
+                    Number = i,
+                    Status = "available",
+                    IsSelected = false
+                });
+            }
         }
     }
 
@@ -193,9 +222,15 @@ public partial class BookingViewModel : BaseViewModel
         }
         else if (CurrentStep == 1)
         {
-            if (SeatCount < 1 || SeatCount > AvailableSeats)
+            if (SeatCount < 1)
             {
-                ErrorMessage = $"Доступно {AvailableSeats} мест";
+                ErrorMessage = "Выберите количество мест";
+                return;
+            }
+            await LoadSeatsAsync();
+            if (SeatCount > AvailableSeats)
+            {
+                ErrorMessage = $"Доступно только {AvailableSeats} мест";
                 return;
             }
             await LoadSeatMapAsync();
@@ -226,10 +261,14 @@ public partial class BookingViewModel : BaseViewModel
 
             ErrorMessage = null;
         }
+        else if (CurrentStep == 3)
+        {
+            await CreateBookingAsync();
+        }
     }
 
     [RelayCommand]
-    private void GoPrevStep()
+    private async Task GoPrevStep()
     {
         if (CurrentStep > 0)
         {
@@ -242,6 +281,10 @@ public partial class BookingViewModel : BaseViewModel
                 2 => "Выберите места",
                 _ => StepHeader
             };
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("..");
         }
     }
 
