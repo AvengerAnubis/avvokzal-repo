@@ -137,6 +137,16 @@ public partial class ProfileViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private void EditProfile()
+    {
+        if (User == null) return;
+        FirstName = User.FirstName;
+        LastName = User.LastName;
+        Phone = User.Phone ?? "";
+        IsEditingProfile = !IsEditingProfile;
+    }
+
+    [RelayCommand]
     private async Task SaveProfileAsync()
     {
         if (User == null) return;

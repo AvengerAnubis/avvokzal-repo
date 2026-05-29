@@ -55,7 +55,7 @@
                                TextColor="{StaticResource Primary}" />
 
                         <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
-                            <Button Text="Редактировать" Command="{Binding SaveProfileCommand}"
+                            <Button Text="Редактировать" Command="{Binding EditProfileCommand}"
                                     BackgroundColor="Transparent" TextColor="{StaticResource Primary}"
                                     BorderColor="{StaticResource Primary}" BorderWidth="1"
                                     FontSize="13" HeightRequest="36" Padding="12,4" />
