@@ -308,7 +308,7 @@
 
             <!-- Booking Complete State -->
             <VerticalStackLayout Spacing="12" IsVisible="{Binding IsBookingComplete}">
-                <Label Text="✅ Бронь создана!" FontSize="20" FontAttributes="Bold"
+                <Label Text="Бронь создана!" FontSize="20" FontAttributes="Bold"
                        TextColor="{StaticResource Success}" HorizontalOptions="Center" />
                 <Label Text="{Binding CreatedBooking.TotalPrice, StringFormat='Сумма: {0:N0} ₽'}"
                        FontSize="16" TextColor="{StaticResource Slate600}" HorizontalOptions="Center" />

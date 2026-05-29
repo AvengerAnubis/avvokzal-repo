@@ -78,7 +78,7 @@
             <!-- Payment Complete State -->
             <VerticalStackLayout Spacing="12" IsVisible="{Binding IsPaymentComplete}"
                                  HorizontalOptions="Center" Padding="20">
-                <Label Text="✅" FontSize="48" HorizontalOptions="Center" />
+                <Label Text="" FontSize="48" IsVisible="False" />
                 <Label Text="Оплата прошла успешно!" FontSize="20" FontAttributes="Bold"
                        TextColor="{StaticResource Success}" HorizontalOptions="Center" />
                 <Label Text="{Binding Payment.TransactionId, StringFormat='ID транзакции: {0}'}"

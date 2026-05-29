@@ -16,7 +16,7 @@
                 Stroke="{StaticResource Warning}" StrokeThickness="1"
                 IsVisible="{Binding IsServerOnline, Converter={StaticResource InverseBoolConverter}}">
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="⚠ Сервер недоступен" FontSize="14" FontAttributes="Bold"
+                    <Label Text="Сервер недоступен" FontSize="14" FontAttributes="Bold"
                            TextColor="{StaticResource Slate900}" />
                     <Label Text="Поиск и бронирование временно недоступны. Вы можете просмотреть сохранённые билеты в профиле."
                            FontSize="12" TextColor="{StaticResource Slate700}" LineBreakMode="WordWrap" />
@@ -102,7 +102,6 @@
                                        FontSize="13" TextColor="{StaticResource Slate500}">
                                     <Label.FormattedText>
                                         <FormattedString>
-                                            <Span Text="&#x1F4CD; " />
                                             <Span Text="{Binding Origin}" />
                                             <Span Text=" → " />
                                             <Span Text="{Binding Destination}" />
@@ -114,7 +113,6 @@
                                     <Label FontSize="12" TextColor="{StaticResource Slate400}">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="&#x1F4CF; " />
                                                 <Span Text="{Binding Distance, StringFormat='{0} км'}" />
                                             </FormattedString>
                                         </Label.FormattedText>
@@ -122,7 +120,6 @@
                                     <Label FontSize="12" TextColor="{StaticResource Slate400}">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="&#x23F1; " />
                                                 <Span Text="{Binding Duration, StringFormat='{0} мин'}" />
                                             </FormattedString>
                                         </Label.FormattedText>

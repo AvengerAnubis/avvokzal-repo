@@ -46,7 +46,16 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(endpoint, data, _jsonOptions);
+            HttpResponseMessage response;
+            if (data != null)
+            {
+                response = await _httpClient.PostAsJsonAsync(endpoint, data, _jsonOptions);
+            }
+            else
+            {
+                using var content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+                response = await _httpClient.PostAsync(endpoint, content);
+            }
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
         }

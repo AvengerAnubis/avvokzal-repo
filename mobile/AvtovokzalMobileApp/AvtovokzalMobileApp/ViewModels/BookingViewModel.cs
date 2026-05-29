@@ -349,6 +349,6 @@ public partial class BookingViewModel : BaseViewModel
     [RelayCommand]
     private async Task GoToTicketsAsync()
     {
-        await Shell.Current.GoToAsync("profile");
+        await Shell.Current.GoToAsync("//profile");
     }
 }

@@ -16,7 +16,7 @@
                 Stroke="{StaticResource Warning}" StrokeThickness="1"
                 IsVisible="{Binding ConnectionWarning, Converter={StaticResource IsNotNullConverter}}">
                 <HorizontalStackLayout Spacing="8">
-                    <Label Text="⚠" FontSize="16" VerticalOptions="Center" />
+                    <Label Text="" FontSize="16" IsVisible="False" />
                     <Label Text="{Binding ConnectionWarning}" FontSize="13"
                            TextColor="{StaticResource Slate700}" VerticalOptions="Center"
                            LineBreakMode="WordWrap" HorizontalOptions="FillAndExpand" />
@@ -169,8 +169,7 @@
                                            TextColor="{StaticResource Slate900}" />
 
                                     <Label Grid.Row="0" Grid.Column="1"
-                                           Text="💾" FontSize="16"
-                                           VerticalOptions="Center" />
+                                            IsVisible="False" />
 
                                     <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                            FontSize="13" TextColor="{StaticResource Slate500}">
@@ -222,7 +221,7 @@
                                            TextColor="{StaticResource Slate900}" />
 
                                     <Button Grid.Row="0" Grid.Column="1"
-                                            Text="✕" FontSize="14"
+                                            Text="×" FontSize="14"
                                             BackgroundColor="Transparent" TextColor="{StaticResource Error}"
                                             WidthRequest="36" HeightRequest="36" Padding="0"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}, Path=RemoveFavoriteCommand}"
