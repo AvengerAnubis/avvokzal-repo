@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <ul className="space-y-2 text-sm text-gray-300">
                     <li><i className="pi pi-phone mr-2"></i>+7 (999) 000-00-00</li>
                     <li><i className="pi pi-envelope mr-2"></i>info@avvokzal.ru</li>
-                    <li><i className="pi pi-map-marker mr-2"></i>г. Москва, ул. Примерная, д. 1</li>
+                    <li><i className="pi pi-map-marker mr-2"></i>г. Пермь, ул. Примерная, д. 1</li>
                   </ul>
                 </div>
               </div>
