@@ -10,8 +10,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="16" VerticalOptions="Center" MaximumWidthRequest="400">
 
-            <Label Text="АВ-Вокзал" FontSize="28" FontAttributes="Bold"
-                   HorizontalOptions="Center" TextColor="{StaticResource Primary}" />
+            <Image Source="logo_white" HeightRequest="48" HorizontalOptions="Center" />
 
             <Label Text="Вход в систему" FontSize="18"
                    HorizontalOptions="Center" TextColor="{StaticResource Slate600}" />

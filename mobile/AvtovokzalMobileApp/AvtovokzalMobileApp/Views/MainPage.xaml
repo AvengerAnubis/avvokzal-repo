@@ -51,7 +51,7 @@
             <Border BackgroundColor="{StaticResource Tertiary}" StrokeShape="RoundRectangle 12" Padding="20"
                 Stroke="Transparent" StrokeThickness="0">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="АВ-Вокзал" FontSize="24" FontAttributes="Bold" TextColor="White" />
+                    <Image Source="logo_white" HeightRequest="40" HorizontalOptions="Start" />
                     <Label Text="Поиск и бронирование автобусных билетов"
                            FontSize="14" TextColor="{StaticResource Slate300}" />
 
