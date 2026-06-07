@@ -9,10 +9,9 @@ public class AuthService : IAuthService
     public AuthService(IApiService apiService)
     {
         _apiService = apiService;
-        _ = RestoreTokenAsync();
     }
 
-    private async Task RestoreTokenAsync()
+    public async Task InitializeAsync()
     {
         try
         {
@@ -95,9 +94,8 @@ public class AuthService : IAuthService
         Token = null;
         CurrentUser = null;
         _apiService.SetAuthToken(null);
-        await SecureStorage.Default.SetAsync("auth_token", string.Empty);
+        SecureStorage.Default.Remove("auth_token");
         AuthStateChanged?.Invoke();
-        await Task.CompletedTask;
     }
 
     private async Task SaveTokenAsync(string token)

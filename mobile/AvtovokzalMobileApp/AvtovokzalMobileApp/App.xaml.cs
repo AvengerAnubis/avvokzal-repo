@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AvtovokzalMobileApp.Services;
 
 namespace AvtovokzalMobileApp
 {
@@ -11,7 +11,16 @@ namespace AvtovokzalMobileApp
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var shell = new AppShell();
+            return new Window(shell);
+        }
+
+        protected override void OnStart()
+        {
+            base.OnStart();
+            var authService = Handler?.MauiContext?.Services.GetService<IAuthService>();
+            if (authService != null)
+                _ = authService.InitializeAsync();
         }
     }
 }

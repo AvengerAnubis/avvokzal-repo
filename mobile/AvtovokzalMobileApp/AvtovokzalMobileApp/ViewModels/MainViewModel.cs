@@ -21,9 +21,6 @@ public partial class MainViewModel : BaseViewModel
     private List<RouteModel> _routes = new();
 
     [ObservableProperty]
-    private DateTime _selectedDate = DateTime.Today;
-
-    [ObservableProperty]
     private bool _isAuthenticated;
 
     [ObservableProperty]
@@ -38,13 +35,16 @@ public partial class MainViewModel : BaseViewModel
 
         IsServerOnline = _healthService.IsServerOnline;
         if (!IsServerOnline)
-            ConnectionWarning = "Сервер недоступен. Некоторые функции могут быть ограничены.";
+            ConnectionWarning = AppStrings.ServerOfflineGeneric;
 
         IsAuthenticated = _authService.IsAuthenticated;
         UpdateUserGreeting();
 
         _healthService.ConnectivityChanged += OnConnectivityChanged;
         _authService.AuthStateChanged += OnAuthStateChanged;
+
+        AddCleanup(() => _healthService.ConnectivityChanged -= OnConnectivityChanged);
+        AddCleanup(() => _authService.AuthStateChanged -= OnAuthStateChanged);
     }
 
     private void OnAuthStateChanged()
@@ -68,7 +68,7 @@ public partial class MainViewModel : BaseViewModel
         MainThread.BeginInvokeOnMainThread(() =>
         {
             IsServerOnline = _healthService.IsServerOnline;
-            ConnectionWarning = IsServerOnline ? null : "Сервер недоступен. Некоторые функции могут быть ограничены.";
+            ConnectionWarning = IsServerOnline ? null : AppStrings.ServerOfflineGeneric;
         });
     }
 
@@ -89,11 +89,11 @@ public partial class MainViewModel : BaseViewModel
             var routes = await _routeService.GetRoutesAsync();
             Routes = routes.Where(r => r.IsActive).ToList();
             if (Routes.Count == 0)
-                ErrorMessage = "Нет доступных маршрутов";
+                ErrorMessage = AppStrings.NoRoutes;
         }
         catch
         {
-            ErrorMessage = "Не удалось загрузить маршруты";
+            ErrorMessage = AppStrings.RouteLoadError;
         }
         finally
         {
@@ -126,7 +126,7 @@ public partial class MainViewModel : BaseViewModel
         }
         catch
         {
-            ErrorMessage = "Ошибка поиска";
+            ErrorMessage = AppStrings.SearchError;
         }
         finally
         {

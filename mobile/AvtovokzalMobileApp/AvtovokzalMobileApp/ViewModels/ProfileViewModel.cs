@@ -62,6 +62,9 @@ public partial class ProfileViewModel : BaseViewModel
 
         _authService.AuthStateChanged += OnAuthStateChanged;
         _healthService.ConnectivityChanged += OnConnectivityChanged;
+
+        AddCleanup(() => _authService.AuthStateChanged -= OnAuthStateChanged);
+        AddCleanup(() => _healthService.ConnectivityChanged -= OnConnectivityChanged);
     }
 
     private void OnConnectivityChanged()
@@ -69,7 +72,7 @@ public partial class ProfileViewModel : BaseViewModel
         MainThread.BeginInvokeOnMainThread(() =>
         {
             IsServerOnline = _healthService.IsServerOnline;
-            ConnectionWarning = IsServerOnline ? null : "Сервер недоступен. Показаны сохранённые данные.";
+            ConnectionWarning = IsServerOnline ? null : AppStrings.ServerOffline;
         });
     }
 
@@ -78,10 +81,6 @@ public partial class ProfileViewModel : BaseViewModel
         MainThread.BeginInvokeOnMainThread(() =>
         {
             IsAuthenticated = _authService.IsAuthenticated;
-            if (IsAuthenticated)
-                _ = LoadProfileAsync();
-            else
-                ClearProfile();
         });
     }
 
@@ -123,11 +122,11 @@ public partial class ProfileViewModel : BaseViewModel
         catch
         {
             if (IsServerOnline)
-                ErrorMessage = "Ошибка загрузки профиля";
+                ErrorMessage = AppStrings.ProfileLoadError;
 
             var cached = await _offlineStorage.GetCachedTicketsAsync();
             CachedTickets = new ObservableCollection<TicketModel>(cached);
-            ConnectionWarning = "Сервер недоступен. Показаны сохранённые билеты.";
+            ConnectionWarning = AppStrings.ServerOffline;
         }
         finally
         {
@@ -170,7 +169,7 @@ public partial class ProfileViewModel : BaseViewModel
         }
         catch
         {
-            ErrorMessage = "Ошибка сохранения";
+            ErrorMessage = AppStrings.SaveError;
         }
         finally
         {
@@ -238,7 +237,7 @@ public partial class ProfileViewModel : BaseViewModel
     public void OnAppearing()
     {
         IsServerOnline = _healthService.IsServerOnline;
-        ConnectionWarning = IsServerOnline ? null : "Сервер недоступен. Показаны сохранённые данные.";
+        ConnectionWarning = IsServerOnline ? null : AppStrings.ServerOffline;
 
         IsAuthenticated = _authService.IsAuthenticated;
         if (IsAuthenticated)

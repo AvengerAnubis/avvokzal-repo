@@ -87,7 +87,13 @@ public partial class PaymentViewModel : BaseViewModel
                     Payment = processed;
                     IsPaymentComplete = true;
 
-                    await _bookingService.ConfirmBookingAsync(Booking.Id);
+                    try
+                    {
+                        await _bookingService.ConfirmBookingAsync(Booking.Id);
+                    }
+                    catch
+                    {
+                    }
                 }
                 else
                 {
@@ -101,7 +107,7 @@ public partial class PaymentViewModel : BaseViewModel
         }
         catch
         {
-            ErrorMessage = "Ошибка подключения к серверу";
+            ErrorMessage = AppStrings.ConnectionError;
         }
         finally
         {
@@ -113,7 +119,6 @@ public partial class PaymentViewModel : BaseViewModel
     private async Task GoToTicketAsync()
     {
         if (Booking == null) return;
-        var tickets = await _paymentService.GetPaymentByBookingAsync(Booking.Id);
         await Shell.Current.GoToAsync($"ticket?bookingId={Booking.Id}");
     }
 

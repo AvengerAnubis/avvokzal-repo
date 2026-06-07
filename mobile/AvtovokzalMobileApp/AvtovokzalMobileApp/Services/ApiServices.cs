@@ -7,11 +7,11 @@ public class RouteService : IRouteService
     private readonly IApiService _api;
     public RouteService(IApiService api) => _api = api;
 
-    public async Task<List<RouteModel>> GetRoutesAsync() => (await _api.GetAsync<List<RouteModel>>("/api/routes").ConfigureAwait(false)) ?? [];
-    public async Task<List<RouteModel>> SearchRoutesAsync(string origin, string destination) => (await _api.GetAsync<List<RouteModel>>($"/api/routes/search?origin={Uri.EscapeDataString(origin)}&destination={Uri.EscapeDataString(destination)}").ConfigureAwait(false)) ?? [];
+    public async Task<List<RouteModel>> GetRoutesAsync() => (await _api.GetAsync<List<RouteModel>>("/api/routes")) ?? [];
+    public async Task<List<RouteModel>> SearchRoutesAsync(string origin, string destination) => (await _api.GetAsync<List<RouteModel>>($"/api/routes/search?origin={Uri.EscapeDataString(origin)}&destination={Uri.EscapeDataString(destination)}")) ?? [];
     public Task<RouteModel?> GetRouteAsync(string id) => _api.GetAsync<RouteModel>($"/api/routes/{id}");
-    public async Task<List<TripModel>> GetTripsAsync(string? routeId = null) => (await _api.GetAsync<List<TripModel>>(routeId != null ? $"/api/trips?routeId={routeId}" : "/api/trips").ConfigureAwait(false)) ?? [];
-    public async Task<List<TripModel>> GetTripsByRouteAsync(string routeId) => (await _api.GetAsync<List<TripModel>>($"/api/trips/route/{routeId}").ConfigureAwait(false)) ?? [];
+    public async Task<List<TripModel>> GetTripsAsync(string? routeId = null) => (await _api.GetAsync<List<TripModel>>(routeId != null ? $"/api/trips?routeId={routeId}" : "/api/trips")) ?? [];
+    public async Task<List<TripModel>> GetTripsByRouteAsync(string routeId) => (await _api.GetAsync<List<TripModel>>($"/api/trips/route/{routeId}")) ?? [];
     public Task<SeatsInfo?> GetSeatsAsync(string tripId) => _api.GetAsync<SeatsInfo>($"/api/trips/{tripId}/seats");
     public Task<SeatMapResponse?> GetSeatMapAsync(string tripId) => _api.GetAsync<SeatMapResponse>($"/api/trips/{tripId}/seats");
 }
@@ -22,7 +22,7 @@ public class BookingService : IBookingService
     public BookingService(IApiService api) => _api = api;
 
     public Task<BookingModel?> CreateBookingAsync(CreateBookingRequest request) => _api.PostAsync<BookingModel>("/api/bookings", request);
-    public async Task<List<BookingModel>> GetUserBookingsAsync(string userId) => (await _api.GetAsync<List<BookingModel>>($"/api/bookings/user/{userId}").ConfigureAwait(false)) ?? [];
+    public async Task<List<BookingModel>> GetUserBookingsAsync(string userId) => (await _api.GetAsync<List<BookingModel>>($"/api/bookings/user/{userId}")) ?? [];
     public Task<BookingModel?> GetBookingAsync(string id) => _api.GetAsync<BookingModel>($"/api/bookings/{id}");
     public Task<BookingModel?> ConfirmBookingAsync(string id) => _api.PutAsync<BookingModel>($"/api/bookings/{id}/confirm");
     public Task<BookingModel?> CancelBookingAsync(string id) => _api.PutAsync<BookingModel>($"/api/bookings/{id}/cancel");
@@ -43,9 +43,9 @@ public class TicketService : ITicketService
     private readonly IApiService _api;
     public TicketService(IApiService api) => _api = api;
 
-    public async Task<List<TicketModel>> GetUserTicketsAsync(string userId) => (await _api.GetAsync<List<TicketModel>>($"/api/tickets?userId={userId}").ConfigureAwait(false)) ?? [];
+    public async Task<List<TicketModel>> GetUserTicketsAsync(string userId) => (await _api.GetAsync<List<TicketModel>>($"/api/tickets?userId={userId}")) ?? [];
     public Task<TicketModel?> GetTicketAsync(string id) => _api.GetAsync<TicketModel>($"/api/tickets/{id}");
-    public async Task<List<TicketModel>> GetTicketsByBookingAsync(string bookingId) => (await _api.GetAsync<List<TicketModel>>($"/api/tickets/booking/{bookingId}").ConfigureAwait(false)) ?? [];
+    public async Task<List<TicketModel>> GetTicketsByBookingAsync(string bookingId) => (await _api.GetAsync<List<TicketModel>>($"/api/tickets/booking/{bookingId}")) ?? [];
 }
 
 public class FavoriteService : IFavoriteService
@@ -53,7 +53,7 @@ public class FavoriteService : IFavoriteService
     private readonly IApiService _api;
     public FavoriteService(IApiService api) => _api = api;
 
-    public async Task<List<FavoriteModel>> GetFavoritesAsync(string userId) => (await _api.GetAsync<List<FavoriteModel>>($"/api/favorites?userId={userId}").ConfigureAwait(false)) ?? [];
+    public async Task<List<FavoriteModel>> GetFavoritesAsync(string userId) => (await _api.GetAsync<List<FavoriteModel>>($"/api/favorites?userId={userId}")) ?? [];
     public Task<bool> AddFavoriteAsync(string userId, string routeId) => _api.PostAsync<bool>($"/api/favorites/{routeId}?userId={userId}");
     public Task<bool> RemoveFavoriteAsync(string userId, string routeId) => _api.DeleteAsync($"/api/favorites/{routeId}?userId={userId}");
     public async Task<bool> CheckFavoriteAsync(string userId, string routeId)

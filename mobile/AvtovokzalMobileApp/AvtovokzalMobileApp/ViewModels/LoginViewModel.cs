@@ -46,7 +46,7 @@ public partial class LoginViewModel : BaseViewModel
         }
         catch
         {
-            ErrorMessage = "Ошибка подключения к серверу";
+            ErrorMessage = AppStrings.ConnectionError;
         }
         finally
         {

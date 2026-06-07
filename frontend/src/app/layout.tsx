@@ -13,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="ru">
         <head>
           <title>АВ-Вокзал</title>
+          <link rel="icon" href="/logo_black.svg" type="image/svg+xml" sizes="any" />
         </head>
         <body className="p-0 m-0 overflow-y-auto overflow-x-clip min-h-screen flex flex-col">
           <AuthProvider>

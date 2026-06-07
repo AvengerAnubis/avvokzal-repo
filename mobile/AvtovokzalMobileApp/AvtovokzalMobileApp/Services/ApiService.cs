@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -36,8 +37,9 @@ public class ApiService : IApiService
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[ApiService] GET {endpoint} failed: {ex.Message}");
             return default;
         }
     }
@@ -59,8 +61,9 @@ public class ApiService : IApiService
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[ApiService] POST {endpoint} failed: {ex.Message}");
             return default;
         }
     }
@@ -69,12 +72,22 @@ public class ApiService : IApiService
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync(endpoint, data, _jsonOptions);
+            HttpResponseMessage response;
+            if (data != null)
+            {
+                response = await _httpClient.PutAsJsonAsync(endpoint, data, _jsonOptions);
+            }
+            else
+            {
+                using var content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
+                response = await _httpClient.PutAsync(endpoint, content);
+            }
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[ApiService] PUT {endpoint} failed: {ex.Message}");
             return default;
         }
     }
@@ -86,8 +99,9 @@ public class ApiService : IApiService
             var response = await _httpClient.DeleteAsync(endpoint);
             return response.IsSuccessStatusCode;
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine($"[ApiService] DELETE {endpoint} failed: {ex.Message}");
             return false;
         }
     }

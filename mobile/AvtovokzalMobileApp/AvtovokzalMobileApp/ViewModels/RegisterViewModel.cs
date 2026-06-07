@@ -74,7 +74,7 @@ public partial class RegisterViewModel : BaseViewModel
         }
         catch
         {
-            ErrorMessage = "Ошибка подключения к серверу";
+            ErrorMessage = AppStrings.ConnectionError;
         }
         finally
         {
