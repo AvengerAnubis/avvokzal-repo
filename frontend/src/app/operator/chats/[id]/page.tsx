@@ -132,14 +132,14 @@ export default function OperatorChatPage() {
             {messages.map((msg, i) => (
               <div key={msg.id || i} className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}>
                 <div className={`p-3 rounded max-w-[75%] ${
-                  msg.senderId === user?.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+                  msg.senderId === user?.id ? 'bg-blue-600 text-white' : 'bg-[var(--surface-section)] text-[var(--text-color)]'
                 }`}>
                   <div className="text-xs text-muted-color mb-1">
                     {msg.sender?.firstName} {msg.sender?.lastName}
                     {msg.senderRole === 'DRIVER' ? ' (Водитель)' : msg.senderRole === 'OPERATOR' ? ' (Оператор)' : ' (Админ)'}
                   </div>
                   <div className="text-sm">{msg.text}</div>
-                  <div className={`text-xs mt-1 ${msg.senderId === user?.id ? 'text-blue-200' : 'text-gray-400'}`}>
+                  <div className={`text-xs mt-1 ${msg.senderId === user?.id ? 'text-blue-300' : 'text-muted-color'}`}>
                     {new Date(msg.createdAt).toLocaleString('ru-RU')}
                   </div>
                 </div>

@@ -82,7 +82,7 @@ export default function SeatMap({ tripId, selectedSeats, onSelectionChange, maxS
       </div>
 
       {/* Bus body */}
-      <div className="border-2 border-gray-300 rounded-xl p-4 bg-white max-w-xs mx-auto">
+      <div className="border-2 border-[var(--surface-border)] rounded-xl p-4 bg-[var(--surface-card)] max-w-xs mx-auto">
         {/* Steering wheel indicator */}
         <div className="flex justify-center mb-4">
           <div className="w-12 h-8 bg-gray-300 rounded-t-lg flex items-center justify-center text-xs text-gray-500">

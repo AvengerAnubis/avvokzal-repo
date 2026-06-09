@@ -224,8 +224,8 @@ function PaymentPageContent() {
                 key={method.value}
                 className={`p-4 rounded-lg cursor-pointer transition-all border-2 ${
                   selectedMethod === method.value 
-                    ? 'border-blue-600 bg-blue-50 shadow-md' 
-                    : 'border-slate-300 bg-white shadow-sm hover:border-slate-500 hover:bg-slate-50'
+                    ? 'border-blue-600 bg-blue-900/30 shadow-md' 
+                    : 'border-[var(--surface-border)] bg-[var(--surface-card)] shadow-sm hover:border-blue-500 hover:bg-[var(--surface-hover)]'
                 }`}
                 onClick={() => setSelectedMethod(method.value)}
               >

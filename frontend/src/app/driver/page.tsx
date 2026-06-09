@@ -182,10 +182,10 @@ export default function DriverPage() {
                 {messages.map((msg, i) => (
                   <div key={msg.id || i} className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}>
                     <div className={`p-3 rounded max-w-[75%] ${
-                      msg.senderId === user?.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+                      msg.senderId === user?.id ? 'bg-blue-600 text-white' : 'bg-[var(--surface-section)] text-[var(--text-color)]'
                     }`}>
                       <div className="text-sm">{msg.text}</div>
-                      <div className={`text-xs mt-1 ${msg.senderId === user?.id ? 'text-blue-200' : 'text-gray-400'}`}>
+                      <div className={`text-xs mt-1 ${msg.senderId === user?.id ? 'text-blue-300' : 'text-muted-color'}`}>
                         {new Date(msg.createdAt).toLocaleString('ru-RU')}
                         {msg.senderRole !== 'DRIVER' && ' · Оператор'}
                       </div>
@@ -197,13 +197,13 @@ export default function DriverPage() {
             )}
 
             {chat && chat.status === 'WAITING' && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+              <div className="mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded text-sm text-yellow-300">
                 ⏳ Ищем оператора...
               </div>
             )}
 
             {chat && chat.status === 'ACTIVE' && chat.operator && (
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+              <div className="mt-4 p-3 bg-green-900/30 border border-green-700 rounded text-sm text-green-300">
                 ✅ Оператор {chat.operator.firstName} {chat.operator.lastName} на связи
               </div>
             )}

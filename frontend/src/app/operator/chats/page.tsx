@@ -81,7 +81,7 @@ export default function OperatorChatsPage() {
         ) : (
           <div className="space-y-3">
             {availableChats.map((chat) => (
-              <div key={chat.id} className="flex justify-between items-center p-4 bg-white border border-slate-200 rounded-lg">
+              <div key={chat.id} className="flex justify-between items-center p-4 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg">
                 <div className="flex-1">
                   <div className="font-bold">{chat.driver.firstName} {chat.driver.lastName}</div>
                   <div className="text-sm text-muted-color">{chat.driver.email}</div>
@@ -113,7 +113,7 @@ export default function OperatorChatsPage() {
             {activeChats.map((chat) => (
               <div
                 key={chat.id}
-                className="flex justify-between items-center p-4 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50"
+                className="flex justify-between items-center p-4 bg-[var(--surface-card)] border border-[var(--surface-border)] rounded-lg cursor-pointer hover:bg-[var(--surface-hover)]"
                 onClick={() => router.push(`/operator/chats/${chat.id}`)}
               >
                 <div className="flex-1">

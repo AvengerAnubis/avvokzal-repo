@@ -268,9 +268,9 @@ export default function BookingPage() {
                   />
                 </div>
 
-                <div className="flex justify-between items-center p-3 bg-green-100 border-round">
-                  <span className="font-bold">Итого:</span>
-                  <span className="text-xl font-bold text-green-700">
+                <div className="flex justify-between items-center p-3 bg-green-900/30 border-round">
+                  <span className="font-bold text-[var(--text-color)]">Итого:</span>
+                  <span className="text-xl font-bold text-green-400">
                     {Number(selectedTrip.route.price) * seats} ₽
                   </span>
                 </div>
@@ -338,9 +338,9 @@ export default function BookingPage() {
                   />
                 </div>
 
-                <div className="flex justify-between items-center p-3 bg-green-100 border-round">
-                  <span className="font-bold">Итого:</span>
-                  <span className="text-xl font-bold text-green-700">
+                <div className="flex justify-between items-center p-3 bg-green-900/30 border-round">
+                  <span className="font-bold text-[var(--text-color)]">Итого:</span>
+                  <span className="text-xl font-bold text-green-400">
                     {Number(selectedTrip.route.price) * seats} ₽
                   </span>
                 </div>

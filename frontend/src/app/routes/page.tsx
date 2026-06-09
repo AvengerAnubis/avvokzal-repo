@@ -329,7 +329,7 @@ export default function RoutesPage() {
                     <div>
                       <label className="block text-sm font-medium mb-2">Выберите рейс</label>
                       {tripOptions.length === 0 ? (
-                        <div className="text-sm p-3 border border-yellow-200 rounded bg-yellow-50 text-yellow-800">
+                        <div className="text-sm p-3 border border-yellow-700 rounded bg-yellow-900/30 text-yellow-300">
                           <i className="pi pi-info-circle mr-2"></i>
                           Нет доступных рейсов для этого маршрута
                         </div>
@@ -361,9 +361,9 @@ export default function RoutesPage() {
                     </div>
 
                     {selectedTrip && (
-                      <div className="flex justify-between items-center p-3 bg-green-50 border-round">
-                        <span className="font-bold text-lg">Итого:</span>
-                        <span className="text-xl font-bold text-green-700">{totalPrice} ₽</span>
+                      <div className="flex justify-between items-center p-3 bg-green-900/30 border-round">
+                        <span className="font-bold text-lg text-[var(--text-color)]">Итого:</span>
+                        <span className="text-xl font-bold text-green-400">{totalPrice} ₽</span>
                       </div>
                     )}
                   </>
@@ -432,9 +432,9 @@ export default function RoutesPage() {
                   />
                 </div>
 
-                <div className="flex justify-between items-center p-3 bg-green-50 border-round">
-                  <span className="font-bold text-lg">Итого:</span>
-                  <span className="text-xl font-bold text-green-700">{totalPrice} ₽</span>
+                <div className="flex justify-between items-center p-3 bg-green-900/30 border-round">
+                  <span className="font-bold text-lg text-[var(--text-color)]">Итого:</span>
+                  <span className="text-xl font-bold text-green-400">{totalPrice} ₽</span>
                 </div>
               </div>
             )}
