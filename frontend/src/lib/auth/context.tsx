@@ -105,8 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: true,
       });
       return { success: true };
-    } catch {
-      return { success: false, error: 'Ошибка сети. Попробуйте позже.' };
+    } catch (error: any) {
+      const message = error?.response?.data?.message
+        || error?.response?.data?.error
+        || 'Ошибка подключения к серверу';
+      return { success: false, error: message };
     }
   };
 
@@ -129,8 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: true,
       });
       return { success: true };
-    } catch {
-      return { success: false, error: 'Ошибка сети. Попробуйте позже.' };
+    } catch (error: any) {
+      const message = error?.response?.data?.message
+        || error?.response?.data?.error
+        || 'Ошибка подключения к серверу';
+      return { success: false, error: message };
     }
   };
 
